@@ -32,9 +32,7 @@ export const translations = {
     day: '日',
     
     // Frontline
-    frontlineRotation: '每日23:00轮换',
-    calendarHint: '对应战场为0:00~22:59时的地图。悬停查看更多信息。',
-    lateNightMap: '23:00后',
+    calendarHint: '日期下缀的是当日0:00时所处的地图。悬停在日期上方可以查看当日内的轮换信息。',
     
     // Crystalline Conflict
     ccRotation: '每90分钟轮换',
@@ -97,9 +95,7 @@ export const translations = {
     seconds: '秒',
     day: '日',
     
-    frontlineRotation: '毎日23:00にローテーション',
-    calendarHint: '表示されるマップは0:00~22:59の間のものです。ホバーで詳細を表示。',
-    lateNightMap: '23:00以降',
+    calendarHint: '日付の後ろに付いているのは当日0時時点のマップです。ホバーで詳細を表示。',
     
     ccRotation: '90分ごとにローテーション',
     nextDay: '翌日',
@@ -159,9 +155,7 @@ export const translations = {
     seconds: 's',
     day: 'Day',
     
-    frontlineRotation: 'Rotates daily at 23:00',
-    calendarHint: 'Shows the map from 0:00-22:59. Hover for more info.',
-    lateNightMap: 'After 23:00',
+    calendarHint: 'The map displayed under the date is the one at 0:00 on that day. Hovering it could show the rotation info.',
     
     ccRotation: 'Rotates every 90 minutes',
     nextDay: 'Next day ',

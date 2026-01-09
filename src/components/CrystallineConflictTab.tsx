@@ -77,7 +77,7 @@ export function CrystallineConflictTab() {
           <h2 className="text-sm font-medium text-muted-foreground mb-4">
             {t.timeline}
           </h2>
-          <ScrollArea className="h-[560px] pr-2">
+          <ScrollArea className="h-auto sm:h-[560px] pr-2">
             <div className="space-y-1">
               {timeline.slice(0, 16).map((entry, idx) => {
                 const isActive = idx === 0;

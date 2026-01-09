@@ -38,7 +38,7 @@ export function MapCard({ mapId, size = 'md', showName = true, showFullName = fa
   return (
     <div 
       className={cn(
-        "relative overflow-hidden rounded-lg mx-auto select-none",
+        "relative overflow-hidden rounded-lg max-w-full mx-auto select-none",
         "bg-gradient-to-br",
         mapGradients[mapId],
         sizeClasses[size],
