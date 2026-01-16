@@ -77,16 +77,34 @@ export function FrontlineTab() {
   );
 }
 
+import { zhCN, ja, enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
+
+// Map language to locales
+const locales = {
+  zh: zhCN,
+  ja: ja,
+  en: enUS,
+};
+
 function FrontlineCalendar({ timezone }: { timezone: number }) {
-  const { t } = useSettingsContext();
+  const { t, language } = useSettingsContext();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
+  const locale = locales[language as keyof typeof locales];
+
+  // Sunday start for map calculation/display logic generally works with Date objects directly, 
+  // but for calendar grid we need to adjust padding and headers.
+  // zh: Monday (1) start, others: Sunday (0) start
+  const weekStartDay = language === 'zh' ? 1 : 0;
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startPadding = firstDay.getDay();
+  
+  // Calculate padding based on week start day
+  const startPadding = (firstDay.getDay() - weekStartDay + 7) % 7;
   
   const days: (Date | null)[] = [];
   for (let i = 0; i < startPadding; i++) {
@@ -95,6 +113,14 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
   for (let d = 1; d <= lastDay.getDate(); d++) {
     days.push(new Date(year, month, d));
   }
+  
+  // Generate weekdays based on current locale and start day
+  // Jan 7 2024 is Sunday. 
+  // If starting on Monday (weekStartDay=1), we start from Jan 8.
+  const weekDays = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date(2024, 0, 7 + i + weekStartDay);
+    return format(d, 'EEE', { locale });
+  });
 
   const prevMonth = () => setCurrentMonth(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentMonth(new Date(year, month + 1, 1));
@@ -115,8 +141,8 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
         <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="font-medium text-sm">
-          {t.months[month]} {year}
+        <span className="font-medium text-sm capitalize">
+          {format(currentMonth, 'MMMM yyyy', { locale })}
         </span>
         <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8">
           <ChevronRight className="h-4 w-4" />
@@ -125,8 +151,8 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
 
       {/* Weekday headers */}
       <div className="my-4 grid grid-cols-7 gap-1 text-center">
-        {t.weekdays.map((day) => (
-          <div key={day} className="text-xs text-muted-foreground py-1">
+        {weekDays.map((day, i) => (
+          <div key={i} className="text-xs text-muted-foreground py-1">
             {day}
           </div>
         ))}
