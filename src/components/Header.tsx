@@ -19,7 +19,7 @@ export function Header() {
                 {t.appTitle}
               </h1>
               <span className="text-[10px] text-muted-foreground font-mono opacity-60">
-                v{import.meta.env.VITE_APP_VERSION}
+                {t.lastUpdate}: {import.meta.env.VITE_LAST_UPDATE}
               </span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">

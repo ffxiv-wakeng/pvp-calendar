@@ -14,7 +14,7 @@ export default defineConfig({
     react()
   ],
   define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(PackageJson.version),
+    'import.meta.env.VITE_LAST_UPDATE': JSON.stringify(PackageJson.lastUpdate),
   },
   resolve: {
     alias: {
