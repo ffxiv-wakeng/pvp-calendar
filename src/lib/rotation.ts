@@ -23,21 +23,38 @@
  * 2. Update the REFERENCE_DATE if the rotation timing changed
  */
 
-export type FrontlineMap = 'secure' | 'seize' | 'shatter' | 'naadam';
-export type CCMap = 'palaistra' | 'volcanic' | 'castletown' | 'bayside' | 'cloudnine' | 'redsands';
+export type FrontlineMap = 'secure' | 'seize' | 'shatter' | 'naadam' | 'triumph';
+export type CCMap = 'palaistra' | 'volcanic' | 'castletown' | 'bayside' | 'cloudnine' | 'redsands' | 'harmonias';
 
 // Frontline rotates every 24 hours at 23:00 Beijing time (15:00 UTC)
-export const FRONTLINE_MAPS: FrontlineMap[] = ['secure', 'seize', 'shatter', 'naadam'];
+export const FRONTLINE_MAPS: FrontlineMap[] = [
+  'seize', // 尘封秘岩
+  'shatter', // 荣誉野
+  'naadam', // 昂萨哈凯尔
+  'triumph', // 沃刻其特
+  'seize', // 尘封秘岩
+  'secure', // 周边遗迹群
+  'naadam', // 昂萨哈凯尔
+  'triumph', // 沃刻其特
+];
 export const FRONTLINE_ROTATION_HOURS = 24;
 
-// Reference: 2025-07-16T15:00:00Z is when 'secure' starts
-export const FRONTLINE_REFERENCE_DATE = new Date('2025-07-16T15:00:00Z');
+// Reference: When first frontline starts
+export const FRONTLINE_REFERENCE_DATE = new Date('2026-04-27T15:00:00Z');
 
-// Crystalline Conflict rotates every 90 minutes
-export const CC_MAPS: CCMap[] = ['palaistra', 'volcanic', 'castletown', 'bayside', 'cloudnine', 'redsands'];
-export const CC_ROTATION_MINUTES = 90;
+// Crystalline Conflict rotates every 60 minutes
+export const CC_MAPS: CCMap[] = [
+  'palaistra', // 角力学校
+  'volcanic', // 火山之心
+  'bayside', // 海岸鸟群斗场
+  'cloudnine', // 九霄云上
+  'castletown', // 机关大殿
+  'harmonias', // 休兵书库
+  'redsands', // 赤土红沙
+];
+export const CC_ROTATION_MINUTES = 60;
 
-// Reference: 2026-01-09T15:00:00Z is when 'palaistra' starts
+// Reference: When first cc starts
 export const CC_REFERENCE_DATE = new Date('2026-01-09T15:00:00Z');
 
 /**
@@ -45,6 +62,7 @@ export const CC_REFERENCE_DATE = new Date('2026-01-09T15:00:00Z');
  */
 export function getCurrentFrontlineMap(now: Date = new Date()): {
   map: FrontlineMap;
+  mapIndex: number;
   nextRotation: Date;
   timeRemaining: number;
 } {
@@ -63,6 +81,7 @@ export function getCurrentFrontlineMap(now: Date = new Date()): {
   
   return {
     map: FRONTLINE_MAPS[normalizedIndex],
+    mapIndex: normalizedIndex,
     nextRotation,
     timeRemaining: nextRotation.getTime() - now.getTime(),
   };

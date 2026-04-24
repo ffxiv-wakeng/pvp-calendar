@@ -50,7 +50,7 @@ export function FrontlineTab() {
                   <span 
                     className={cn(
                       "text-xs px-2 py-1 rounded-md bg-secondary",
-                      mapId === currentData.map && "ring-2 ring-primary bg-primary/20"
+                      idx === currentData.mapIndex && "ring-2 ring-primary bg-primary/20"
                     )}
                   >
                     {t.mapShort[mapId]}
