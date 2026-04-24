@@ -14,9 +14,14 @@ export function Header() {
             <Swords className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-sm sm:text-base font-bold leading-tight">
-              {t.appTitle}
-            </h1>
+            <div className="flex items-baseline gap-1.5">
+              <h1 className="text-sm sm:text-base font-bold leading-tight">
+                {t.appTitle}
+              </h1>
+              <span className="text-[10px] text-muted-foreground font-mono opacity-60">
+                v{import.meta.env.VITE_APP_VERSION}
+              </span>
+            </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
               {t.appSubtitle}
             </p>

@@ -13,6 +13,9 @@ export default defineConfig({
   plugins: [
     react()
   ],
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(PackageJson.version),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
