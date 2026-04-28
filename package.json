@@ -1,7 +1,7 @@
 {
   "name": "pvp-calendar",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "lastUpdate": "2026-04-28",
   "type": "module",
   "scripts": {

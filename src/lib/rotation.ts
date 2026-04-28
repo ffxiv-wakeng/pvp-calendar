@@ -29,11 +29,11 @@ export type CCMap = 'palaistra' | 'volcanic' | 'castletown' | 'bayside' | 'cloud
 // Frontline rotates every 24 hours at 23:00 Beijing time (15:00 UTC)
 export const FRONTLINE_MAPS: FrontlineMap[] = [
   'seize', // 尘封秘岩
-  'shatter', // 荣誉野
+  'secure', // 周边遗迹群
   'naadam', // 昂萨哈凯尔
   'triumph', // 沃刻其特
   'seize', // 尘封秘岩
-  'secure', // 周边遗迹群
+  'shatter', // 荣誉野
   'naadam', // 昂萨哈凯尔
   'triumph', // 沃刻其特
 ];
@@ -55,7 +55,7 @@ export const CC_MAPS: CCMap[] = [
 export const CC_ROTATION_MINUTES = 60;
 
 // Reference: When first cc starts
-export const CC_REFERENCE_DATE = new Date('2026-01-09T15:00:00Z');
+export const CC_REFERENCE_DATE = new Date('2026-04-28T13:00:00Z');
 
 /**
  * Calculate the current Frontline map and time until next rotation
