@@ -85,7 +85,7 @@ export function MapCalculator() {
               type="datetime-local"
               value={date ? getDateTimeString(date, time) : ''}
               onChange={(e) => handleDateTimeChange(e.target.value)}
-              className="w-full bg-background"
+              className="w-full max-w-full bg-background"
             />
           </div>
 

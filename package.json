@@ -2,7 +2,7 @@
   "name": "pvp-calendar",
   "private": true,
   "version": "1.0.1",
-  "lastUpdate": "2026-04-28",
+  "supportGameVer": "7.5",
   "type": "module",
   "scripts": {
     "dev": "vite",

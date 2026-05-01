@@ -34,7 +34,7 @@ export const translations = {
     minutes: '分钟',
     seconds: '秒',
     day: '日',
-    lastUpdate: '上次更新',
+    supportGameVer: '适配版本',
     
     // Frontline
     calendarHint: '日期下缀的是当日0:00时所处的地图。悬停在日期上方可以查看当日内的轮换信息。',
@@ -107,7 +107,7 @@ export const translations = {
     minutes: '分',
     seconds: '秒',
     day: '日',
-    lastUpdate: '最終更新',
+    supportGameVer: '対応パッチ',
     
     calendarHint: '日付の後ろに付いているのは当日0時時点のマップです。ホバーで詳細を表示。',
     
@@ -176,7 +176,7 @@ export const translations = {
     minutes: 'm',
     seconds: 's',
     day: 'Day',
-    lastUpdate: 'Last Update',
+    supportGameVer: 'Supported Patch',
     
     calendarHint: 'The map displayed under the date is the one at 0:00 on that day. Hovering it could show the rotation info.',
     

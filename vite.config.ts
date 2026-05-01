@@ -14,7 +14,7 @@ export default defineConfig({
     react()
   ],
   define: {
-    'import.meta.env.VITE_LAST_UPDATE': JSON.stringify(PackageJson.lastUpdate),
+    'import.meta.env.VITE_LAST_UPDATE': JSON.stringify(PackageJson.supportGameVer),
   },
   resolve: {
     alias: {
