@@ -35,6 +35,10 @@ export const translations = {
     seconds: '秒',
     day: '日',
     supportGameVer: '适配版本',
+    exportWeekly: '导出本周战场图',
+    weeklyRotation: '本周战场图',
+    exportSuccess: '图片已生成，可以长按保存或右键复制',
+    appDescription: '在线追踪对战地图轮换情况。',
     
     // Frontline
     calendarHint: '日期下缀的是当日0:00时所处的地图。悬停或点击日期可查看当日内的轮换信息。',
@@ -108,6 +112,10 @@ export const translations = {
     seconds: '秒',
     day: '日',
     supportGameVer: '対応パッチ',
+    exportWeekly: '今週のマップを書き出す',
+    weeklyRotation: 'フロントライン・今週のマップ',
+    exportSuccess: '画像を生成しました。長押しして保存、または右クリックでコピーできます',
+    appDescription: 'フロントラインのローテーションをリアルタイムで追跡。FFXIVコミュニティのために。',
     
     calendarHint: '日付の後ろに付いているのは当日0時時点のマップです。ホバーまたはタップで詳細を表示。',
     
@@ -177,6 +185,10 @@ export const translations = {
     seconds: 's',
     day: 'Day',
     supportGameVer: 'Supported Patch',
+    exportWeekly: 'Export Weekly Maps',
+    weeklyRotation: 'Frontline Weekly Rotation',
+    exportSuccess: 'Image generated! Long press to save or right-click to copy.',
+    appDescription: 'Tracking Frontline rotations in real-time. Designed for the FFXIV community.',
     
     calendarHint: 'The map displayed under the date is the one at 0:00 on that day. Hover or tap the date to view rotation info.',
     

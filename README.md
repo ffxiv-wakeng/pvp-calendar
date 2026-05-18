@@ -10,6 +10,7 @@ Track the map rotation of Frontline and Crystalline Conflict in FFXIV PvP.
 - 🗺️ **Real-time Map Display**: View the current active map for both Frontline and Crystalline Conflict
 - ⏱️ **Live Countdown**: See exactly when the next rotation occurs (updates every second)
 - 📅 **Frontline Calendar**: Browse past and future Frontline maps by date
+- 📸 **Weekly Export**: Export the current week's Frontline map rotation as a beautiful image summary
 - 📋 **CC Timeline**: View upcoming Crystalline Conflict maps for the next 30 hours
 - 🌍 **Multi-language Support**: Available in Chinese (中文), Japanese (日本語), and English
 - 🌙 **Dark/Light Mode**: Choose your preferred theme or follow system settings

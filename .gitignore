@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Ai
+ARCHITECTURE.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/settings.json

@@ -9,10 +9,18 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { WeeklyExport } from '@/components/WeeklyExport';
+import * as htmlToImage from 'html-to-image';
+import { Image as ImageIcon, Download, Loader2, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 export function FrontlineTab() {
   const { t, timezone } = useSettingsContext();
   const [currentData, setCurrentData] = useState(() => getCurrentFrontlineMap());
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportImageUrl, setExportImageUrl] = useState<string | null>(null);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [, setTick] = useState(0);
 
   const refreshData = useCallback(() => {
@@ -26,55 +34,129 @@ export function FrontlineTab() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const node = document.getElementById('weekly-export-node');
+      if (!node) throw new Error('Export node not found');
+
+      // Wait a moment for images/fonts to stabilize if needed
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const dataUrl = await htmlToImage.toPng(node, {
+        quality: 0.95,
+        pixelRatio: 2, // Better resolution
+      });
+
+      setExportImageUrl(dataUrl);
+      setIsExportDialogOpen(true);
+      toast.success(t.exportSuccess);
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Export failed');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
-    <div className="grid gap-4 md:gap-6 lg:grid-cols-[4fr_6fr]">
-      {/* Current Map Card */}
-      <Card className="glass-card overflow-hidden">
-        <CardContent className="p-4 sm:p-6">
-          <h2 className="text-sm font-medium text-muted-foreground mb-4">{t.currentMap}</h2>
-          <MapCard mapId={currentData.map} size="lg" />
-          <div className="flex items-center justify-end mt-4 gap-3">
-            <p className="text-xs text-muted-foreground">{t.nextRotation}</p>
-            <CountdownTimer 
-              targetTime={currentData.nextRotation}
-              onExpire={refreshData}
-              compact
-            />
-          </div>
-
-          {/* Rotation order */}
-          <div className="pt-4 border-t border-border/30">
-            <p className="text-xs text-muted-foreground mb-3">{t.rotationSchedule}</p>
-            <div className="flex flex-wrap items-center gap-y-1.5">
-              {FRONTLINE_MAPS.map((mapId, idx) => (
-                <div key={`${mapId}-${idx}`} className="flex items-center">
-                  <span 
-                    className={cn(
-                      "text-xs px-2 py-1 rounded-md bg-secondary",
-                      idx === currentData.mapIndex && "ring-2 ring-primary bg-primary/20"
-                    )}
-                  >
-                    {t.mapShort[mapId]}
-                  </span>
-                  {idx < FRONTLINE_MAPS.length - 1 && (
-                    <ArrowRight className="h-3 w-3 text-muted-foreground/50 mx-1" />
-                  )}
-                </div>
-              ))}
+    <>
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-[4fr_6fr]">
+        {/* Current Map Card */}
+        <Card className="glass-card overflow-hidden">
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-sm font-medium text-muted-foreground mb-4">{t.currentMap}</h2>
+            <MapCard mapId={currentData.map} size="lg" />
+            <div className="flex items-center justify-end mt-4 gap-3">
+              <p className="text-xs text-muted-foreground">{t.nextRotation}</p>
+              <CountdownTimer
+                targetTime={currentData.nextRotation}
+                onExpire={refreshData}
+                compact
+              />
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Calendar Card */}
-      <Card className="glass-card overflow-hidden">
-        <CardContent className="p-4 sm:p-6">
-          <h2 className="text-sm font-medium text-muted-foreground mb-4">{t.calendar}</h2>
-          <FrontlineCalendar timezone={timezone} />
-          <p className="text-xs text-muted-foreground mt-4">{t.calendarHint}</p>
-        </CardContent>
-      </Card>
-    </div>
+            {/* Rotation order */}
+            <div className="pt-4 border-t border-border/30">
+              <p className="text-xs text-muted-foreground mb-3">{t.rotationSchedule}</p>
+              <div className="flex flex-wrap items-center gap-y-1.5">
+                {FRONTLINE_MAPS.map((mapId, idx) => (
+                  <div key={`${mapId}-${idx}`} className="flex items-center">
+                    <span
+                      className={cn(
+                        "text-xs px-2 py-1 rounded-md bg-secondary",
+                        idx === currentData.mapIndex && "ring-2 ring-primary bg-primary/20"
+                      )}
+                    >
+                      {t.mapShort[mapId]}
+                    </span>
+                    {idx < FRONTLINE_MAPS.length - 1 && (
+                      <ArrowRight className="h-3 w-3 text-muted-foreground/50 mx-1" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Calendar Card */}
+        <Card className="glass-card overflow-hidden">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-medium text-muted-foreground">{t.calendar}</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all group"
+                onClick={handleExport}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Share2 className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-xs">{t.exportWeekly}</span>
+              </Button>
+            </div>
+            <FrontlineCalendar timezone={timezone} />
+            <p className="text-xs text-muted-foreground mt-4">{t.calendarHint}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Hidden export node */}
+      <div className="fixed -left-[9999px] top-0 pointer-events-none opacity-0">
+        <WeeklyExport id="weekly-export-node" />
+      </div>
+
+      {/* Export Result Dialog */}
+      <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+        <DialogContent className="sm:max-w-md md:max-w-lg p-0 overflow-hidden bg-background border-border">
+          <DialogHeader className="p-6 pb-4 border-b border-border bg-muted/30">
+            <DialogTitle>{t.exportWeekly}</DialogTitle>
+          </DialogHeader>
+          <div className="relative aspect-[3/5] max-h-[70vh] w-full overflow-hidden flex items-center justify-center p-6 bg-muted/10 font-sans">
+            {exportImageUrl && (
+              <img
+                src={exportImageUrl}
+                alt="Exported weekly map"
+                className="max-w-full max-h-full rounded-lg shadow-xl border border-border"
+              />
+            )}
+          </div>
+          <div className="p-4 border-t border-border flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setIsExportDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -113,13 +195,13 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
-  
+
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  
+
   // Calculate padding based on week start day
   const startPadding = (firstDay.getDay() - weekStartDay + 7) % 7;
-  
+
   const days: (Date | null)[] = [];
   for (let i = 0; i < startPadding; i++) {
     days.push(null);
@@ -127,7 +209,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
   for (let d = 1; d <= lastDay.getDate(); d++) {
     days.push(new Date(year, month, d));
   }
-  
+
   // Generate weekdays based on current locale and start day
   // Jan 7 2024 is Sunday. 
   // If starting on Monday (weekStartDay=1), we start from Jan 8.
@@ -161,10 +243,10 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
     const maps = getFrontlineMapForDate(date, timezone);
     const splitHour = ((15 + timezone) % 24 + 24) % 24;
     const isSplit = splitHour !== 0 && maps.mainMap !== maps.lateNightMap;
-    
+
     const splitHourStr = splitHour.toString().padStart(2, '0');
     const beforeSplitEndStr = (splitHour - 1).toString().padStart(2, '0');
-    
+
     return { maps, isSplit, splitHourStr, beforeSplitEndStr };
   };
 
@@ -237,33 +319,33 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-auto min-w-[200px] p-3">
-                  <div className="text-xs space-y-2">
-                    {(() => {
-                      const { isSplit, splitHourStr, beforeSplitEndStr } = getRotationInfo(date);
-                      
-                      if (!isSplit) {
-                        return (
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="text-muted-foreground">{formatTimeRange('00:00', '23:59')}</span>
-                            <MapBadge mapId={maps.mainMap} />
-                          </div>
-                        );
-                      }
+                <div className="text-xs space-y-2">
+                  {(() => {
+                    const { isSplit, splitHourStr, beforeSplitEndStr } = getRotationInfo(date);
 
+                    if (!isSplit) {
                       return (
-                        <>
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="text-muted-foreground">{formatTimeRange('00:00', `${beforeSplitEndStr}:59`)}</span>
-                            <MapBadge mapId={maps.mainMap} />
-                          </div>
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="text-muted-foreground">{formatTimeRange(`${splitHourStr}:00`, '23:59')}</span>
-                            <MapBadge mapId={maps.lateNightMap} />
-                          </div>
-                        </>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">{formatTimeRange('00:00', '23:59')}</span>
+                          <MapBadge mapId={maps.mainMap} />
+                        </div>
                       );
-                    })()}
-                  </div>
+                    }
+
+                    return (
+                      <>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">{formatTimeRange('00:00', `${beforeSplitEndStr}:59`)}</span>
+                          <MapBadge mapId={maps.mainMap} />
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-muted-foreground">{formatTimeRange(`${splitHourStr}:00`, '23:59')}</span>
+                          <MapBadge mapId={maps.lateNightMap} />
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
               </HoverCardContent>
             </HoverCard>
           );
@@ -280,7 +362,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                 const month = t.months[selectedDate.getMonth()];
                 const day = selectedDate.getDate();
                 const year = selectedDate.getFullYear();
-                
+
                 if (language === 'zh') {
                   return `${year}年${month}${day}日 周${weekday}`;
                 } else if (language === 'ja') {
@@ -295,7 +377,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
           <div className="px-4 pb-8 pt-4 overflow-y-auto">
             {selectedDate && (() => {
               const { maps, isSplit, splitHourStr, beforeSplitEndStr } = getRotationInfo(selectedDate);
-              
+
               return (
                 <div className="space-y-4">
                   {!isSplit ? (

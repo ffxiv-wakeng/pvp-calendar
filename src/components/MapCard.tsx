@@ -8,6 +8,7 @@ interface MapCardProps {
   showName?: boolean;
   showFullName?: boolean;
   className?: string;
+  nameClasses?: string;
 }
 
 const mapGradients: Record<string, string> = {
@@ -23,7 +24,7 @@ const mapGradients: Record<string, string> = {
   redsands: 'from-rose-800 to-red-900',
 };
 
-export function MapCard({ mapId, size = 'md', showName = true, showFullName = false, className }: MapCardProps) {
+export function MapCard({ mapId, size = 'md', showName = true, showFullName = false, className, nameClasses = "" }: MapCardProps) {
   const { t } = useSettingsContext();
   const mapName = showFullName ? t.maps[mapId as keyof typeof t.maps] : t.maps[mapId as keyof typeof t.maps];
   
@@ -61,7 +62,7 @@ export function MapCard({ mapId, size = 'md', showName = true, showFullName = fa
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
       
       {showName && (
-        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+        <div className={cn("absolute bottom-0 left-0 right-0 p-3 sm:p-4", nameClasses)}>
           <h3 className="text-white font-semibold text-sm sm:text-base drop-shadow-lg line-clamp-2">
             {mapName}
           </h3>
