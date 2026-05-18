@@ -37,7 +37,7 @@ export const translations = {
     supportGameVer: '适配版本',
     
     // Frontline
-    calendarHint: '日期下缀的是当日0:00时所处的地图。悬停在日期上方可以查看当日内的轮换信息。',
+    calendarHint: '日期下缀的是当日0:00时所处的地图。悬停或点击日期可查看当日内的轮换信息。',
     
     // Crystalline Conflict
     ccRotation: '每90分钟轮换',
@@ -109,7 +109,7 @@ export const translations = {
     day: '日',
     supportGameVer: '対応パッチ',
     
-    calendarHint: '日付の後ろに付いているのは当日0時時点のマップです。ホバーで詳細を表示。',
+    calendarHint: '日付の後ろに付いているのは当日0時時点のマップです。ホバーまたはタップで詳細を表示。',
     
     ccRotation: '90分ごとにローテーション',
     nextDay: '翌日',
@@ -178,7 +178,7 @@ export const translations = {
     day: 'Day',
     supportGameVer: 'Supported Patch',
     
-    calendarHint: 'The map displayed under the date is the one at 0:00 on that day. Hovering it could show the rotation info.',
+    calendarHint: 'The map displayed under the date is the one at 0:00 on that day. Hover or tap the date to view rotation info.',
     
     ccRotation: 'Rotates every 90 minutes',
     nextDay: 'Next day ',

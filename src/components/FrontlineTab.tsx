@@ -8,6 +8,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 
 export function FrontlineTab() {
   const { t, timezone } = useSettingsContext();
@@ -90,12 +91,25 @@ const locales = {
 function FrontlineCalendar({ timezone }: { timezone: number }) {
   const { t, language } = useSettingsContext();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const locale = locales[language as keyof typeof locales];
 
   // Sunday start for map calculation/display logic generally works with Date objects directly, 
   // but for calendar grid we need to adjust padding and headers.
   // zh: Monday (1) start, others: Sunday (0) start
   const weekStartDay = language === 'zh' ? 1 : 0;
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -134,6 +148,26 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
     return `${start}~${end} (${timezoneLabel})`;
   };
 
+  // Handle date click for mobile
+  const handleDateClick = (date: Date) => {
+    if (isMobile) {
+      setSelectedDate(date);
+      setDrawerOpen(true);
+    }
+  };
+
+  // Get rotation info for a date (shared between HoverCard and Drawer)
+  const getRotationInfo = (date: Date) => {
+    const maps = getFrontlineMapForDate(date, timezone);
+    const splitHour = ((15 + timezone) % 24 + 24) % 24;
+    const isSplit = splitHour !== 0 && maps.mainMap !== maps.lateNightMap;
+    
+    const splitHourStr = splitHour.toString().padStart(2, '0');
+    const beforeSplitEndStr = (splitHour - 1).toString().padStart(2, '0');
+    
+    return { maps, isSplit, splitHourStr, beforeSplitEndStr };
+  };
+
   return (
     <div className="relative max-w-[600px] mx-auto my-4">
       {/* Month navigation */}
@@ -169,6 +203,25 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
           const isToday = date.getTime() === today.getTime();
           const isPast = date.getTime() < today.getTime();
 
+          // Mobile: use click handler
+          if (isMobile) {
+            return (
+              <div
+                key={date.toISOString()}
+                className={cn(
+                  "aspect-square flex flex-col items-center justify-center rounded-lg text-xs cursor-pointer transition-all relative",
+                  isToday && "ring-2 ring-primary bg-primary/10",
+                  isPast ? "opacity-40" : "hover:bg-muted/50"
+                )}
+                onClick={() => handleDateClick(date)}
+              >
+                <span className={cn("font-medium", isToday && "text-primary")}>{date.getDate()}</span>
+                <MapBadge mapId={maps.mainMap} className="text-[8px] px-1 py-0 mt-0.5" />
+              </div>
+            );
+          }
+
+          // Desktop: use HoverCard
           return (
             <HoverCard key={date.toISOString()} openDelay={0} closeDelay={0}>
               <HoverCardTrigger asChild>
@@ -186,8 +239,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
               <HoverCardContent className="w-auto min-w-[200px] p-3">
                   <div className="text-xs space-y-2">
                     {(() => {
-                      const splitHour = ((15 + timezone) % 24 + 24) % 24;
-                      const isSplit = splitHour !== 0 && maps.mainMap !== maps.lateNightMap;
+                      const { isSplit, splitHourStr, beforeSplitEndStr } = getRotationInfo(date);
                       
                       if (!isSplit) {
                         return (
@@ -197,9 +249,6 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                           </div>
                         );
                       }
-
-                      const splitHourStr = splitHour.toString().padStart(2, '0');
-                      const beforeSplitEndStr = (splitHour - 1).toString().padStart(2, '0');
 
                       return (
                         <>
@@ -221,7 +270,63 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
         })}
       </div>
 
-      {/* Floating tooltip - positioned outside the grid */}
+      {/* Mobile Drawer */}
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="text-center pb-2">
+            <DrawerTitle className="text-lg">
+              {selectedDate && (() => {
+                const weekday = t.weekdays[selectedDate.getDay()];
+                const month = t.months[selectedDate.getMonth()];
+                const day = selectedDate.getDate();
+                const year = selectedDate.getFullYear();
+                
+                if (language === 'zh') {
+                  return `${year}年${month}${day}日 周${weekday}`;
+                } else if (language === 'ja') {
+                  return `${year}年${month}${day}日（${weekday}）`;
+                } else {
+                  return `${weekday}, ${month} ${day}, ${year}`;
+                }
+              })()}
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="border-t border-border/40 mx-4" />
+          <div className="px-4 pb-8 pt-4 overflow-y-auto">
+            {selectedDate && (() => {
+              const { maps, isSplit, splitHourStr, beforeSplitEndStr } = getRotationInfo(selectedDate);
+              
+              return (
+                <div className="space-y-4">
+                  {!isSplit ? (
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground text-center">
+                        {formatTimeRange('00:00', '23:59')}
+                      </div>
+                      <MapCard mapId={maps.mainMap} size="lg" showFullName className="w-full" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <div className="text-xs text-muted-foreground text-center">
+                          {formatTimeRange('00:00', `${beforeSplitEndStr}:59`)}
+                        </div>
+                        <MapCard mapId={maps.mainMap} size="lg" showFullName className="w-full" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-xs text-muted-foreground text-center">
+                          {formatTimeRange(`${splitHourStr}:00`, '23:59')}
+                        </div>
+                        <MapCard mapId={maps.lateNightMap} size="lg" showFullName className="w-full" />
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        </DrawerContent>
+      </Drawer>
 
     </div>
   );
