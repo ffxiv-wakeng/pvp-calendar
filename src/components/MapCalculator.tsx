@@ -78,15 +78,18 @@ export function MapCalculator() {
         </DialogHeader>
         <div className="flex flex-col md:flex-row h-full">
           {/* Mobile Input: Native DateTime Picker */}
-          <div className="md:hidden p-6 border-b border-border/40 flex flex-col">
+          <div className="md:hidden p-6 border-b border-border/40 flex flex-col overflow-hidden">
             <SectionHeader title={`${t.date} & ${t.time}`} />
-            <Input
-              id="mobile-datetime"
-              type="datetime-local"
-              value={date ? getDateTimeString(date, time) : ''}
-              onChange={(e) => handleDateTimeChange(e.target.value)}
-              className="w-full max-w-full bg-background"
-            />
+            <div className="w-full min-w-0">
+              <Input
+                id="mobile-datetime"
+                type="datetime-local"
+                value={date ? getDateTimeString(date, time) : ''}
+                onChange={(e) => handleDateTimeChange(e.target.value)}
+                className="w-full max-w-full min-w-0 bg-background"
+                style={{ maxWidth: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
           </div>
 
           {/* Desktop Input: Calendar & Time */}

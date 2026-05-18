@@ -81,6 +81,16 @@
   ::selection {
     @apply bg-primary/25 text-foreground;
   }
+
+  /* iOS Safari: Fix datetime-local input overflow */
+  input[type="datetime-local"],
+  input[type="time"],
+  input[type="date"] {
+    max-width: 100%;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
 
 @layer components {
