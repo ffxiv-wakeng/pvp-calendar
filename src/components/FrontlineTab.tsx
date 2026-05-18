@@ -46,7 +46,7 @@ export function FrontlineTab() {
             <p className="text-xs text-muted-foreground mb-3">{t.rotationSchedule}</p>
             <div className="flex flex-wrap items-center gap-y-1.5">
               {FRONTLINE_MAPS.map((mapId, idx) => (
-                <div key={mapId} className="flex items-center">
+                <div key={`${mapId}-${idx}`} className="flex items-center">
                   <span 
                     className={cn(
                       "text-xs px-2 py-1 rounded-md bg-secondary",
