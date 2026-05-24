@@ -87,6 +87,7 @@ export function FrontlineTab() {
                         "text-xs px-2 py-1 rounded-md bg-secondary",
                         idx === currentData.mapIndex && "ring-2 ring-primary bg-primary/20"
                       )}
+                      title={t.maps[mapId]}
                     >
                       {t.mapShort[mapId]}
                     </span>
