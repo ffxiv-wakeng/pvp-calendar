@@ -10,8 +10,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
-            <Swords className="h-5 w-5 text-primary" />
+          <div className="flex items-center justify-center w-8 h-8 overflow-hidden rounded-lg">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-baseline gap-1.5">

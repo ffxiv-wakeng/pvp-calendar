@@ -67,8 +67,8 @@ export function WeeklyExport({ id, className }: WeeklyExportProps) {
       {/* Header */}
       <div className="relative z-10 flex flex-col gap-1 border-b border-border pb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md">
-            <span className="text-white text-lg font-bold italic">P</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md overflow-hidden">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
