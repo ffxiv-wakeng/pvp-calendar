@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useSettingsContext } from '@/contexts/useSettingsContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   JOB_DATA,
   JobRole,
@@ -49,6 +50,7 @@ import {
   HelpCircle,
   Plus,
   Minus,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -89,6 +91,44 @@ const ROLE_COLORS: Record<JobRole, { bg: string; text: string; border: string }>
 type SortField = 'default' | 'hp' | 'damageDealt' | 'damageTaken' | 'lbGauge' | 'effectiveHp';
 type SortOrder = 'asc' | 'desc';
 
+// 帮助提示组件：移动端点击弹出系统 alert，桌面端保持 Tooltip 悬浮展示
+function HelpTip({ content }: { content: string }) {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          alert(content);
+        }}
+        className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground active:text-foreground cursor-pointer focus:outline-none p-1 -m-1 rounded transition-colors"
+        aria-label="提示说明"
+      >
+        <HelpCircle className="h-3.5 w-3.5" />
+      </button>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none p-1 -m-1 rounded transition-colors"
+        >
+          <HelpCircle className="h-3.5 w-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="text-xs max-w-[260px]">
+        {content}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
 export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) {
   const { t, language } = useSettingsContext();
   const [activeTab, setActiveTab] = useState<'overview' | 'calc'>('overview');
@@ -106,6 +146,16 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
   const [isGuarding, setIsGuarding] = useState<boolean>(false);
   const [calcRoleFilter, setCalcRoleFilter] = useState<string>('all');
   const [calcSortOrder, setCalcSortOrder] = useState<SortOrder>('desc');
+
+  // 移动端斩杀线计算器视图状态：'form' 为输入模式，'results' 为查看结果模式
+  const [mobileCalcView, setMobileCalcView] = useState<'form' | 'results'>('form');
+
+  // 当弹窗打开时，移动端重置为表单输入模式
+  useEffect(() => {
+    if (open) {
+      setMobileCalcView('form');
+    }
+  }, [open]);
 
   // 获取当前攻击者职业对象
   const attackerJob = useMemo(
@@ -260,7 +310,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
         >
           {/* Tab 导航 */}
           <div className="px-4 sm:px-6 pt-2 pb-2 border-b border-border/40 bg-muted/20">
-            <TabsList className="grid w-full max-w-[320px] grid-cols-2">
+            <TabsList className="grid w-full lg:max-w-[320px] grid-cols-2">
               <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs sm:text-sm">
                 <Shield className="h-4 w-4" />
                 {t.adjustmentOverview}
@@ -281,7 +331,35 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
             )}
           >
             {/* 顶部搜索与职能筛选 */}
-            <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+            {/* 移动端：搜索框与职业类型整合为 Select，只占用一行空间 */}
+            <div className="flex sm:hidden items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder={t.searchJob}
+                  value={overviewSearch}
+                  onChange={(e) => setOverviewSearch(e.target.value)}
+                  className="pl-8 h-8 text-xs bg-background"
+                />
+              </div>
+              <div className="w-[125px] shrink-0">
+                <Select value={overviewRoleFilter} onValueChange={setOverviewRoleFilter}>
+                  <SelectTrigger className="h-8 text-xs bg-background">
+                    <SelectValue placeholder={t.allRoles} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((r) => (
+                      <SelectItem key={r.key} value={r.key} className="text-xs">
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* 桌面端：保持旧布局，左侧搜索框，右侧全部职能按钮组 */}
+            <div className="hidden sm:flex flex-row gap-2.5 items-center justify-between">
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -308,14 +386,14 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
               </div>
             </div>
 
-            {/* 表格展示 */}
+            {/* 表格展示：移动端表格最小宽度支持竖向和横向顺畅滑动，表头不换行，等效血量完整显示 */}
             <div className="flex-1 min-h-0 rounded-lg border border-border/60 overflow-hidden">
               <ScrollArea className="h-full w-full [&>div>div]:!block">
-                <table className="w-full caption-bottom text-sm border-collapse">
+                <table className="w-full caption-bottom text-sm border-collapse min-w-[580px] sm:min-w-0">
                   <TableHeader className="sticky top-0 bg-background/95 backdrop-blur z-20 shadow-xs">
                     <TableRow className="border-b bg-background/95 backdrop-blur hover:bg-background/95">
                       <TableHead
-                        className="w-[180px] bg-background/95 cursor-pointer select-none hover:text-foreground"
+                        className="w-[130px] sm:w-[180px] min-w-[130px] whitespace-nowrap bg-background/95 cursor-pointer select-none hover:text-foreground"
                         onClick={() => toggleSort('default')}
                       >
                         <div className="flex items-center gap-1">
@@ -324,7 +402,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                         </div>
                       </TableHead>
                       <TableHead
-                        className="bg-background/95 cursor-pointer select-none hover:text-foreground"
+                        className="min-w-[80px] whitespace-nowrap bg-background/95 cursor-pointer select-none hover:text-foreground"
                         onClick={() => toggleSort('hp')}
                       >
                         <div className="flex items-center gap-1">
@@ -333,7 +411,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                         </div>
                       </TableHead>
                       <TableHead
-                        className="bg-background/95 cursor-pointer select-none hover:text-foreground"
+                        className="min-w-[85px] whitespace-nowrap bg-background/95 cursor-pointer select-none hover:text-foreground"
                         onClick={() => toggleSort('damageDealt')}
                       >
                         <div className="flex items-center gap-1">
@@ -342,7 +420,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                         </div>
                       </TableHead>
                       <TableHead
-                        className="bg-background/95 cursor-pointer select-none hover:text-foreground"
+                        className="min-w-[85px] whitespace-nowrap bg-background/95 cursor-pointer select-none hover:text-foreground"
                         onClick={() => toggleSort('damageTaken')}
                       >
                         <div className="flex items-center gap-1">
@@ -351,7 +429,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                         </div>
                       </TableHead>
                       <TableHead
-                        className="bg-background/95 cursor-pointer select-none hover:text-foreground"
+                        className="min-w-[110px] whitespace-nowrap bg-background/95 cursor-pointer select-none hover:text-foreground"
                         onClick={() => toggleSort('lbGauge')}
                       >
                         <div className="flex items-center gap-1">
@@ -360,7 +438,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                         </div>
                       </TableHead>
                       <TableHead
-                        className="bg-background/95 cursor-pointer select-none hover:text-foreground text-right"
+                        className="min-w-[95px] whitespace-nowrap bg-background/95 cursor-pointer select-none hover:text-foreground text-right pr-4"
                         onClick={() => toggleSort('effectiveHp')}
                       >
                         <div className="flex items-center justify-end gap-1">
@@ -378,24 +456,24 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                       return (
                         <TableRow key={job.id} className="hover:bg-muted/40">
                           {/* 职业单元格：仅展示图标与名称（不加粗） */}
-                          <TableCell className="font-medium py-2.5">
+                          <TableCell className="font-medium py-2 sm:py-2.5 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <img
                                 src={`/jobs/${job.id}.png`}
                                 alt={jobName}
-                                className="w-6 h-6 object-contain shrink-0"
+                                className="w-5 sm:w-6 h-5 sm:h-6 object-contain shrink-0"
                               />
-                              <span className="text-sm font-normal text-foreground">{jobName}</span>
+                              <span className="text-xs sm:text-sm font-normal text-foreground">{jobName}</span>
                             </div>
                           </TableCell>
 
                           {/* 基础HP */}
-                          <TableCell className="text-sm tabular-nums">
+                          <TableCell className="text-xs sm:text-sm tabular-nums whitespace-nowrap py-2 sm:py-2.5">
                             {job.hp.toLocaleString()}
                           </TableCell>
 
                           {/* 给予伤害 */}
-                          <TableCell>
+                          <TableCell className="whitespace-nowrap py-2 sm:py-2.5">
                             <span
                               className={cn(
                                 'text-xs tabular-nums font-medium',
@@ -409,7 +487,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                           </TableCell>
 
                           {/* 受到伤害 */}
-                          <TableCell>
+                          <TableCell className="whitespace-nowrap py-2 sm:py-2.5">
                             <span
                               className={cn(
                                 'text-xs tabular-nums font-semibold px-1.5 py-0.5 rounded',
@@ -423,7 +501,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                           </TableCell>
 
                           {/* 极限槽 */}
-                          <TableCell>
+                          <TableCell className="whitespace-nowrap py-2 sm:py-2.5">
                             <span
                               className={cn(
                                 'text-xs tabular-nums',
@@ -439,8 +517,8 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                           </TableCell>
 
                           {/* 等效血量 */}
-                          <TableCell className="text-right">
-                            <span className="font-bold text-sm tabular-nums text-primary">
+                          <TableCell className="text-right whitespace-nowrap py-2 sm:py-2.5 pr-4">
+                            <span className="font-bold text-xs sm:text-sm tabular-nums text-primary">
                               {effHp.toLocaleString()}
                             </span>
                           </TableCell>
@@ -449,7 +527,8 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                     })}
                   </TableBody>
                 </table>
-                <ScrollBar className="w-1.5 p-0 border-none" />
+                <ScrollBar orientation="horizontal" className="h-1.5 p-0 border-none" />
+                <ScrollBar orientation="vertical" className="w-1.5 p-0 border-none" />
               </ScrollArea>
             </div>
           </TabsContent>
@@ -462,23 +541,22 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
               activeTab === 'calc' ? 'flex flex-col' : '!hidden'
             )}
           >
-            {/* 顶部配置面板 */}
+            {/* 顶部配置面板：移动端在结果模式下隐藏，表单模式下显示；桌面端始终显示保持旧布局 */}
             <TooltipProvider delayDuration={0}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_auto_1fr] gap-x-4 gap-y-2 p-3 rounded-xl border border-border/60 bg-muted/30">
+              <div
+                className={cn(
+                  "p-3 rounded-xl border border-border/60 bg-muted/30",
+                  mobileCalcView === 'results' ? "hidden sm:grid" : "grid",
+                  "grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_auto_1fr] gap-x-4 gap-y-2.5"
+                )}
+              >
                 {/* 1. 自身职业选择 */}
                 <div className="space-y-1.5">
                   <div className="h-5 flex items-center gap-1.5">
                     <Label className="text-xs text-muted-foreground font-medium">
                       {t.attackerJob}
                     </Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer" />
-                      </TooltipTrigger>
-                      <TooltipContent className="text-xs">
-                        部分职业具有造成伤害的补正
-                      </TooltipContent>
-                    </Tooltip>
+                    <HelpTip content={t.attackerJobTip} />
                   </div>
                   <Select value={attackerJobId} onValueChange={setAttackerJobId}>
                     <SelectTrigger className="h-9 bg-background">
@@ -516,14 +594,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                     <Label className="text-xs text-muted-foreground font-medium">
                       {t.comboPotency}
                     </Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer" />
-                      </TooltipTrigger>
-                      <TooltipContent className="text-xs">
-                        连招威力应当填入计算自身buff/敌方debuff后的等效威力
-                      </TooltipContent>
-                    </Tooltip>
+                    <HelpTip content={t.comboPotencyTip} />
                   </div>
                   <Input
                     type="number"
@@ -542,7 +613,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                 </div>
 
                 {/* 3. 斗志昂扬 */}
-                <div className="space-y-1.5 w-28 shrink-0">
+                <div className="space-y-1.5 w-full sm:w-28 shrink-0">
                   <div className="h-5 flex items-center">
                     <Label className="text-xs text-muted-foreground font-medium">
                       {t.battleHigh}
@@ -590,14 +661,7 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                     <Label className="text-xs text-muted-foreground font-medium">
                       {t.guard}
                     </Label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer" />
-                      </TooltipTrigger>
-                      <TooltipContent className="text-xs max-w-[260px]">
-                        「周边遗迹群(阵地战)」模式中，身处据点中心旗帜圈内的玩家会获得这一状态，造成的伤害提高50%
-                      </TooltipContent>
-                    </Tooltip>
+                    <HelpTip content={t.guardTip} />
                   </div>
                   <div className="h-9 flex items-center">
                     <Switch
@@ -609,9 +673,110 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
               </div>
             </TooltipProvider>
 
-            {/* 第二栏：移除描述文本与总倍率，只保留操作控件 */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              {/* 职能筛选 */}
+            {/* 移动端专属确认按钮与说明：仅移动端且处于表单输入模式时显示 */}
+            <div
+              className={cn(
+                "sm:hidden flex flex-col gap-2 pt-1",
+                mobileCalcView === 'results' && "hidden"
+              )}
+            >
+              <Button
+                type="button"
+                className="w-full h-10 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
+                onClick={() => setMobileCalcView('results')}
+              >
+                <Flame className="h-4 w-4" />
+                <span>{t.confirmCalc}</span>
+              </Button>
+            </div>
+
+            {/* 移动端专属参数概览条：仅移动端且处于结果模式时显示 */}
+            <div
+              className={cn(
+                "sm:hidden items-center justify-between p-2.5 rounded-lg border border-border/60 bg-muted/30 text-xs shrink-0",
+                mobileCalcView === 'results' ? "flex" : "hidden"
+              )}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <img
+                  src={`/jobs/${attackerJob.id}.png`}
+                  alt={attackerJob.name[language] || attackerJob.name.zh}
+                  className="w-5 h-5 object-contain shrink-0"
+                />
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="font-medium text-foreground">
+                    {attackerJob.name[language] || attackerJob.name.zh}
+                  </span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="tabular-nums font-semibold text-primary">
+                    {potency.toLocaleString()}
+                  </span>
+                  {battleHighLevel > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="px-1 py-0 h-4 text-[10px] border-amber-500/40 text-amber-600 dark:text-amber-400"
+                    >
+                      BH{battleHighLevel}
+                    </Badge>
+                  )}
+                  {isGuarding && (
+                    <Badge
+                      variant="outline"
+                      className="px-1 py-0 h-4 text-[10px] border-blue-500/40 text-blue-600 dark:text-blue-400"
+                    >
+                      {t.guard}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs px-2.5 shrink-0 ml-2"
+                onClick={() => setMobileCalcView('form')}
+              >
+                <SlidersHorizontal className="h-3 w-3 mr-1" />
+                {t.editParams}
+              </Button>
+            </div>
+
+            {/* 移动端操作栏：职业类型整合为 Select，与排序并排只占一行空间（仅在移动端结果页显示） */}
+            <div
+              className={cn(
+                "sm:hidden items-center justify-between gap-2 text-xs pt-1 shrink-0",
+                mobileCalcView === 'results' ? "flex" : "hidden"
+              )}
+            >
+              <div className="flex-1 max-w-[140px]">
+                <Select value={calcRoleFilter} onValueChange={setCalcRoleFilter}>
+                  <SelectTrigger className="h-7 text-xs bg-background">
+                    <SelectValue placeholder={t.allRoles} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((r) => (
+                      <SelectItem key={r.key} value={r.key} className="text-xs">
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs px-2.5 shrink-0"
+                onClick={() =>
+                  setCalcSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'))
+                }
+              >
+                <ArrowUpDown className="h-3 w-3 mr-1" />
+                {calcSortOrder === 'desc' ? t.sortHighToLow : t.sortLowToHigh}
+              </Button>
+            </div>
+
+            {/* 桌面端操作栏：保持旧布局按钮组与排序按钮 */}
+            <div className="hidden sm:flex items-center justify-between text-xs pt-1">
               <div className="flex flex-wrap items-center gap-1">
                 {roles.map((r) => (
                   <Button
@@ -626,7 +791,6 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                 ))}
               </div>
 
-              {/* 排序切换 */}
               <Button
                 variant="outline"
                 size="sm"
@@ -636,12 +800,17 @@ export function AdjustmentLookup({ open, onOpenChange }: AdjustmentLookupProps) 
                 }
               >
                 <ArrowUpDown className="h-3 w-3 mr-1" />
-                {calcSortOrder === 'desc' ? '从高到低' : '从低到高'}
+                {calcSortOrder === 'desc' ? t.sortHighToLow : t.sortLowToHigh}
               </Button>
             </div>
 
-            {/* 斩杀线结果网格 */}
-            <div className="flex-1 min-h-0 rounded-lg border border-border/60 overflow-hidden">
+            {/* 斩杀线结果网格：移动端处于结果模式时撑满显示，表单模式下隐藏；桌面端始终撑满显示保持旧布局 */}
+            <div
+              className={cn(
+                "rounded-lg border border-border/60 overflow-hidden",
+                mobileCalcView === 'results' ? "flex-1 min-h-0 block" : "hidden sm:flex-1 sm:min-h-0 sm:block"
+              )}
+            >
               <ScrollArea className="h-full w-full">
                 <div className="p-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
