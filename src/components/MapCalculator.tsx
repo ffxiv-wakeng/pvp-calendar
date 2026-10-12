@@ -23,10 +23,21 @@ const locales = {
   en: enUS,
 };
 
-export function MapCalculator() {
+interface MapCalculatorProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
+}
+
+export function MapCalculator({ open, onOpenChange, trigger }: MapCalculatorProps = {}) {
   const { t, language } = useSettingsContext();
+  const [internalOpen, setInternalOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [time, setTime] = useState<string>('12:00');
+
+  const isControlled = open !== undefined;
+  const dialogOpen = isControlled ? open : internalOpen;
+  const setDialogOpen = isControlled ? onOpenChange : setInternalOpen;
 
   const calculatedMaps = useMemo(() => {
     if (!date || !time) return null;
@@ -65,13 +76,17 @@ export function MapCalculator() {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Calculator className="h-4 w-4" />
-          <span className="sr-only">{t.calculator}</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {trigger !== undefined ? (
+        trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>
+      ) : !isControlled ? (
+        <DialogTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-9 w-9">
+            <Calculator className="h-4 w-4" />
+            <span className="sr-only">{t.calculator}</span>
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="max-w-[98%] sm:max-w-[425px] md:max-w-[800px] max-h-[90%] overflow-y-auto w-full p-0 gap-0 rounded">
         <DialogHeader>
           <DialogTitle>{t.calculator}</DialogTitle>

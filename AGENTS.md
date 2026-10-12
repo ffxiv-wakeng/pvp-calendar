@@ -25,6 +25,7 @@ No test suite exists. No typecheck script - run `npx tsc --noEmit` manually.
 ## Key Files
 
 - `src/lib/rotation.ts` - Map rotation logic with reference dates
+- `src/lib/jobData.ts` - Frontline job adjustments and attributes (HP, damage modifiers, LB gauge)
 - `src/lib/i18n.ts` - All translations (zh, ja, en)
 - `src/contexts/SettingsContext.tsx` - User preferences (theme, lang, timezone)
 - `src/components/PWAPrompt.tsx` - Offline status and update notifications
@@ -41,6 +42,10 @@ Rotation calculations depend on exact reference dates and map arrays. When modif
 5. Update `REFERENCE_DATE` if rotation order/timing changed
 
 Frontline rotates every 24h at 15:00 UTC. CC rotates every 60min.
+
+## Job Adjustments Data
+
+Job attributes and PVP adjustments are stored in `src/lib/jobData.ts`. Update this file when game patches change job HP, damage dealt/taken modifiers, or LB charge times.
 
 ## PWA Configuration
 

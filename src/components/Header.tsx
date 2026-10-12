@@ -1,7 +1,6 @@
 import { useSettingsContext } from '@/contexts/useSettingsContext';
-import { MapCalculator } from '@/components/MapCalculator';
+import { Toolbox } from '@/components/Toolbox';
 import { SettingsPanel } from '@/components/SettingsPanel';
-import { Swords } from 'lucide-react';
 
 export function Header() {
   const { t } = useSettingsContext();
@@ -29,7 +28,7 @@ export function Header() {
         </div>
         
         <div className="flex items-center gap-1 sm:gap-2">
-          <MapCalculator />
+          <Toolbox />
           <SettingsPanel />
         </div>
       </div>

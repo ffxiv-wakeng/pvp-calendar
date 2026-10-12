@@ -2,25 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapCard, MapBadge } from '@/components/MapCard';
 import { CountdownTimer } from '@/components/CountdownTimer';
-import { getCurrentFrontlineMap, getFrontlineMapForDate, FrontlineMap, FRONTLINE_MAPS } from '@/lib/rotation';
+import { getCurrentFrontlineMap, getFrontlineMapForDate, FRONTLINE_MAPS } from '@/lib/rotation';
 import { useSettingsContext } from '@/contexts/useSettingsContext';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-import { WeeklyExport } from '@/components/WeeklyExport';
-import * as htmlToImage from 'html-to-image';
-import { Image as ImageIcon, Download, Loader2, Share2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 export function FrontlineTab() {
   const { t, timezone } = useSettingsContext();
   const [currentData, setCurrentData] = useState(() => getCurrentFrontlineMap());
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportImageUrl, setExportImageUrl] = useState<string | null>(null);
-  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [, setTick] = useState(0);
 
   const refreshData = useCallback(() => {
@@ -33,31 +25,6 @@ export function FrontlineTab() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleExport = async () => {
-    setIsExporting(true);
-    try {
-      const node = document.getElementById('weekly-export-node');
-      if (!node) throw new Error('Export node not found');
-
-      // Wait a moment for images/fonts to stabilize if needed
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const dataUrl = await htmlToImage.toPng(node, {
-        quality: 0.95,
-        pixelRatio: 2, // Better resolution
-      });
-
-      setExportImageUrl(dataUrl);
-      setIsExportDialogOpen(true);
-      toast.success(t.exportSuccess);
-    } catch (error) {
-      console.error('Export failed:', error);
-      toast.error('Export failed');
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   return (
     <>
@@ -106,57 +73,12 @@ export function FrontlineTab() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-medium text-muted-foreground">{t.calendar}</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all group"
-                onClick={handleExport}
-                disabled={isExporting}
-              >
-                {isExporting ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Share2 className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
-                )}
-                <span className="text-xs">{t.exportWeekly}</span>
-              </Button>
             </div>
             <FrontlineCalendar timezone={timezone} />
             <p className="text-xs text-muted-foreground mt-4">{t.calendarHint}</p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Hidden export node */}
-      <div className="fixed -left-[9999px] top-0 pointer-events-none opacity-0">
-        <WeeklyExport id="weekly-export-node" />
-      </div>
-
-      {/* Export Result Dialog */}
-      <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
-        <DialogContent className="sm:max-w-md md:max-w-lg p-0 overflow-hidden bg-background border-border">
-          <DialogHeader className="p-6 pb-4 border-b border-border bg-muted/30">
-            <DialogTitle>{t.exportWeekly}</DialogTitle>
-          </DialogHeader>
-          <div className="relative aspect-[3/5] max-h-[70vh] w-full overflow-hidden flex items-center justify-center p-6 bg-muted/10 font-sans">
-            {exportImageUrl && (
-              <img
-                src={exportImageUrl}
-                alt="Exported weekly map"
-                className="max-w-full max-h-full rounded-lg shadow-xl border border-border"
-              />
-            )}
-          </div>
-          <div className="p-4 border-t border-border flex justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setIsExportDialogOpen(false)}
-            >
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

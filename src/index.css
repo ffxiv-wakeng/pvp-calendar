@@ -119,3 +119,8 @@
     animation: pulse-glow 2s ease-in-out infinite;
   }
 }
+
+/* 移除浏览器聚焦特效（好不协调） */
+.focus-visible\:ring-offset-2:focus-visible {
+  --tw-ring-offset-width: -2px !important;
+}
