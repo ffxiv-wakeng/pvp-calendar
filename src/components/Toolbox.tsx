@@ -70,7 +70,7 @@ export function Toolbox() {
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuLabel>{t.toolbox}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 

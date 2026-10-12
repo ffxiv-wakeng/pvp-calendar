@@ -3,8 +3,8 @@ export type Language = 'zh' | 'ja' | 'en';
 export const translations = {
   zh: {
     // App
-    appTitle: 'PvP 日历',
-    appSubtitle: '在线追踪对战地图轮换情况',
+    appTitle: 'PvP Center',
+    appSubtitle: '在线追踪对战地图轮换情况，并提供多项实用工具',
     
     // Tabs
     frontline: '纷争前线',
@@ -114,7 +114,7 @@ export const translations = {
     months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
   },
   ja: {
-    appTitle: 'PvP Calendar',
+    appTitle: 'PvP Center',
     appSubtitle: '現在の対戦マップをリアルタイムで確認',
     
     frontline: 'フロントライン',
@@ -219,7 +219,7 @@ export const translations = {
     months: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
   },
   en: {
-    appTitle: 'PvP Calendar',
+    appTitle: 'PvP Center',
     appSubtitle: 'Real-time PvP map tracker',
     
     frontline: 'Frontline',

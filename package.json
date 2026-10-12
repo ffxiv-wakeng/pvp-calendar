@@ -1,8 +1,8 @@
 {
   "name": "pvp-calendar",
   "private": true,
-  "version": "1.0.1",
-  "supportGameVer": "7.5",
+  "version": "1.0.2",
+  "supportGameVer": "7.56",
   "type": "module",
   "scripts": {
     "dev": "vite",
