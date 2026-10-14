@@ -41,6 +41,12 @@ export const translations = {
     weeklyRotation: '本周战场图',
     exportSuccess: '图片已生成，可以长按保存或右键复制',
     appDescription: '在线追踪对战地图轮换情况。',
+    checkUpdate: '检查更新',
+    checkingUpdate: '正在检查更新...',
+    alreadyLatest: '当前已是最新版本',
+    updateFound: '发现新版本，正在载入最新内容...',
+    offlineReady: '应用已准备好离线使用',
+    offlineMode: '离线模式',
 
     // Toolbox & Adjustments
     toolbox: '实用工具',
@@ -159,6 +165,12 @@ export const translations = {
     weeklyRotation: 'フロントライン・今週のマップ',
     exportSuccess: '画像を生成しました。長押しして保存、または右クリックでコピーできます',
     appDescription: 'フロントラインのローテーションをリアルタイムで追跡。FFXIVコミュニティのために。',
+    checkUpdate: '更新を確認',
+    checkingUpdate: '更新を確認中...',
+    alreadyLatest: 'すでに最新バージョンです',
+    updateFound: '新しいバージョンが見つかりました。更新中...',
+    offlineReady: 'アプリはオフラインで使用できるようになりました',
+    offlineMode: 'オフラインモード',
 
     // Toolbox & Adjustments
     toolbox: 'ツールボックス',
@@ -273,6 +285,12 @@ export const translations = {
     weeklyRotation: 'Frontline Weekly Rotation',
     exportSuccess: 'Image generated! Long press to save or right-click to copy.',
     appDescription: 'Tracking Frontline rotations in real-time. Designed for the FFXIV community.',
+    checkUpdate: 'Check for Updates',
+    checkingUpdate: 'Checking for updates...',
+    alreadyLatest: 'Already up to date',
+    updateFound: 'New version found, updating...',
+    offlineReady: 'App ready to work offline',
+    offlineMode: 'Offline mode',
 
     // Toolbox & Adjustments
     toolbox: 'Toolbox',

@@ -1,5 +1,8 @@
-import { Settings, Globe, Sun, Moon, Monitor, Clock, HelpCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Settings, Globe, Sun, Moon, Monitor, Clock, HelpCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { checkForAppUpdates } from '@/lib/pwa';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +92,28 @@ function HelpTip({ content }: { content: string }) {
 
 export function SettingsPanel() {
   const { t, language, theme, timezone, activeTime, updateSettings } = useSettingsContext();
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+
+  const handleCheckUpdate = async () => {
+    if (isCheckingUpdate) return;
+    setIsCheckingUpdate(true);
+    try {
+      const res = await checkForAppUpdates();
+      if (res === 'latest') {
+        toast.success(t.alreadyLatest);
+      } else if (res === 'updated') {
+        // 检测到更新，Service Worker 会通过 onNeedReload 自动提示并刷新
+      } else if (res === 'unsupported') {
+        toast.info(t.alreadyLatest);
+      } else {
+        toast.error('检查更新失败，请稍后重试');
+      }
+    } catch {
+      toast.error('检查更新失败，请稍后重试');
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
 
   const currentTheme = themes.find(th => th.value === theme);
   const ThemeIcon = currentTheme?.icon || Moon;
@@ -201,6 +226,25 @@ export function SettingsPanel() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <DropdownMenuSeparator />
+
+        {/* Update Check */}
+        <div className="p-2 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="font-mono text-[11px] opacity-75">
+            {t.supportGameVer}: {import.meta.env.VITE_LAST_UPDATE}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs hover:bg-accent"
+            onClick={handleCheckUpdate}
+            disabled={isCheckingUpdate}
+          >
+            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isCheckingUpdate ? 'animate-spin' : ''}`} />
+            {isCheckingUpdate ? t.checkingUpdate : t.checkUpdate}
+          </Button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
