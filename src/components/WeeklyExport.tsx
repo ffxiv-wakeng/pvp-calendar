@@ -19,7 +19,7 @@ interface WeeklyExportProps {
 }
 
 export function WeeklyExport({ id, className }: WeeklyExportProps) {
-  const { language, t, timezone } = useSettingsContext();
+  const { language, t, timezone, activeTime } = useSettingsContext();
   const locale = locales[language as keyof typeof locales];
 
   const weekData = useMemo(() => {
@@ -28,7 +28,7 @@ export function WeeklyExport({ id, className }: WeeklyExportProps) {
 
     return Array.from({ length: 7 }).map((_, i) => {
       const date = addDays(monday, i);
-      const { mainMap } = getFrontlineMapForDate(date, timezone);
+      const { snapshotMap } = getFrontlineMapForDate(date, timezone, activeTime);
 
       // Custom format for M月d日 to avoid leading zero
       let dateStr = '';
@@ -40,12 +40,12 @@ export function WeeklyExport({ id, className }: WeeklyExportProps) {
 
       return {
         date,
-        mapId: mainMap,
+        mapId: snapshotMap,
         dayName: format(date, 'EEE', { locale }), // 周一
         dateStr,
       };
     });
-  }, [language, timezone, locale]);
+  }, [language, timezone, activeTime, locale]);
 
   const weekRange = `${format(weekData[0].date, 'yyyy.MM.dd')} - ${format(weekData[6].date, 'MM.dd')}`;
 

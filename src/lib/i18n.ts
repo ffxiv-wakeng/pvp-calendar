@@ -27,6 +27,8 @@ export const translations = {
     language: '语言',
     theme: '主题',
     timezone: '时区',
+    activeTime: '开始活跃时间',
+    activeTimeHelp: '日历日期下标将展示该时间正在轮换的地图快照。',
     light: '浅色',
     dark: '深色',
     system: '跟随系统',
@@ -80,7 +82,7 @@ export const translations = {
     killNotice: '连招威力与各项补正乘算，显示击杀对应职业所需的生命值百分比。',
     
     // Frontline
-    calendarHint: '日期下缀的是当日0:00时所处的地图。悬停或点击日期可查看当日内的轮换信息。',
+    calendarHint: '日期下标展示的是活跃时间（{time}）所处的地图快照。悬停或点击日期可查看当日轮换详情。',
     
     // Crystalline Conflict
     ccRotation: '每90分钟轮换',
@@ -143,6 +145,8 @@ export const translations = {
     language: '言語',
     theme: 'テーマ',
     timezone: 'タイムゾーン',
+    activeTime: '活動開始時間',
+    activeTimeHelp: 'カレンダーの日付下に表示されるマップは、この時間に開催されているマップを基準に表示されます。',
     light: 'ライト',
     dark: 'ダーク',
     system: 'システム',
@@ -195,7 +199,7 @@ export const translations = {
     sortLowToHigh: '低い順',
     killNotice: 'コンボ威力と各補正を乗算し、対象ジョブを撃破するのに必要なHP割合を算出します。',
     
-    calendarHint: '日付の後ろに付いているのは当日0時時点のマップです。ホバーまたはタップで詳細を表示。',
+    calendarHint: '日付の下に表示されているのは活動時間（{time}）時点のマップです。ホバーまたはタップで当日の詳細を表示。',
     
     ccRotation: '90分ごとにローテーション',
     nextDay: '翌日',
@@ -255,6 +259,8 @@ export const translations = {
     language: 'Language',
     theme: 'Theme',
     timezone: 'Timezone',
+    activeTime: 'Active Time',
+    activeTimeHelp: 'The calendar date badge will display the map active at this time as the daily snapshot.',
     light: 'Light',
     dark: 'Dark',
     system: 'System',
@@ -307,7 +313,7 @@ export const translations = {
     sortLowToHigh: 'Low to High',
     killNotice: 'Multiplies combo potency by all adjustments to calculate the target HP percentage dealt.',
     
-    calendarHint: 'The map displayed under the date is the one at 0:00 on that day. Hover or tap the date to view rotation info.',
+    calendarHint: 'The map displayed under the date is the snapshot at your active time ({time}). Hover or tap the date to view rotation info.',
     
     ccRotation: 'Rotates every 90 minutes',
     nextDay: 'Next day ',

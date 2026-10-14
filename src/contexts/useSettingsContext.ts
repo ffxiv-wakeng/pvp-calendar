@@ -6,12 +6,14 @@ interface SettingsContextType {
   language: Language;
   theme: Theme;
   timezone: number;
+  activeTime: string;
   activeTab: TabType;
   t: ReturnType<typeof getTranslation>;
   updateSettings: (updates: Partial<{
     language: Language;
     theme: Theme;
     timezone: number;
+    activeTime: string;
     activeTab: TabType;
   }>) => void;
 }

@@ -8,6 +8,7 @@ interface Settings {
   language: Language;
   theme: Theme;
   timezone: number; // UTC offset in hours
+  activeTime: string; // HH:mm active snapshot time
   activeTab: TabType;
 }
 
@@ -17,6 +18,7 @@ const defaultSettings: Settings = {
   language: 'zh',
   theme: 'light',
   timezone: 8, // Beijing time
+  activeTime: '12:00',
   activeTab: 'frontline',
 };
 
@@ -45,7 +47,12 @@ export function useSettings() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return { ...defaultSettings, ...JSON.parse(stored) };
+        const parsed = JSON.parse(stored);
+        return {
+          ...defaultSettings,
+          ...parsed,
+          activeTime: parsed.activeTime || defaultSettings.activeTime,
+        };
       }
     } catch {
       // Ignore parse errors
@@ -128,3 +135,8 @@ export const TIMEZONE_OPTIONS = [
   { value: 11, label: 'UTC+11:00' },
   { value: 12, label: 'UTC+12:00 (Auckland)' },
 ];
+
+export const ACTIVE_TIME_OPTIONS = Array.from({ length: 24 }, (_, i) => {
+  const hour = i.toString().padStart(2, '0');
+  return `${hour}:00`;
+});

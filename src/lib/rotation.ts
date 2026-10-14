@@ -89,28 +89,55 @@ export function getCurrentFrontlineMap(now: Date = new Date()): {
 
 /**
  * Get the Frontline map for a specific date
- * Returns both the main map (00:00-22:59) and late night map (23:00-23:59)
+ * Returns both the main snapshot map and day rotation breakdown
  */
-export function getFrontlineMapForDate(date: Date, timezoneOffset: number = 8): {
+export function getFrontlineMapForDate(
+  date: Date,
+  timezoneOffset: number = 8,
+  activeTime: string = '12:00'
+): {
   mainMap: FrontlineMap;
+  snapshotMap: FrontlineMap;
+  beforeSplitMap: FrontlineMap;
+  afterSplitMap: FrontlineMap;
   lateNightMap: FrontlineMap;
 } {
   // Create a date at 00:00 in the target timezone
   const tzOffsetMs = timezoneOffset * 60 * 60 * 1000;
   const utcMidnight = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const targetMidnight = new Date(utcMidnight.getTime() - tzOffsetMs);
-  
-  // Main map: active from 00:00 to 22:59
-  const mainMapTime = new Date(targetMidnight.getTime() + 1 * 60 * 60 * 1000); // 01:00 to be safe
-  const mainMapResult = getCurrentFrontlineMap(mainMapTime);
-  
-  // Late night map: active from 23:00 to 23:59
-  const lateNightTime = new Date(targetMidnight.getTime() + 23 * 60 * 60 * 1000);
-  const lateNightResult = getCurrentFrontlineMap(lateNightTime);
-  
+
+  // Parse active snapshot time (e.g. "12:00")
+  let activeHour = 12;
+  let activeMinute = 0;
+  if (typeof activeTime === 'string') {
+    const parts = activeTime.split(':').map(Number);
+    if (!isNaN(parts[0])) activeHour = parts[0];
+    if (!isNaN(parts[1])) activeMinute = parts[1];
+  }
+  const snapshotOffsetMs = (activeHour * 60 + activeMinute) * 60 * 1000;
+  const snapshotTime = new Date(targetMidnight.getTime() + snapshotOffsetMs);
+  const snapshotResult = getCurrentFrontlineMap(snapshotTime);
+
+  // Split hour in local time when rotation occurs (15:00 UTC)
+  const splitHour = ((15 + timezoneOffset) % 24 + 24) % 24;
+
+  // Before split: pick a time before splitHour
+  const beforeSplitOffsetHours = splitHour === 0 ? 1 : Math.max(0.1, splitHour / 2);
+  const beforeSplitTime = new Date(targetMidnight.getTime() + beforeSplitOffsetHours * 60 * 60 * 1000);
+  const beforeSplitResult = getCurrentFrontlineMap(beforeSplitTime);
+
+  // After split: pick a time after splitHour
+  const afterSplitOffsetHours = splitHour === 0 ? 1 : Math.min(23.9, (splitHour + 24) / 2);
+  const afterSplitTime = new Date(targetMidnight.getTime() + afterSplitOffsetHours * 60 * 60 * 1000);
+  const afterSplitResult = getCurrentFrontlineMap(afterSplitTime);
+
   return {
-    mainMap: mainMapResult.map,
-    lateNightMap: lateNightResult.map,
+    mainMap: snapshotResult.map,
+    snapshotMap: snapshotResult.map,
+    beforeSplitMap: beforeSplitResult.map,
+    afterSplitMap: afterSplitResult.map,
+    lateNightMap: afterSplitResult.map,
   };
 }
 

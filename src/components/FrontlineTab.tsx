@@ -11,7 +11,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 
 export function FrontlineTab() {
-  const { t, timezone } = useSettingsContext();
+  const { t, timezone, activeTime } = useSettingsContext();
   const [currentData, setCurrentData] = useState(() => getCurrentFrontlineMap());
   const [, setTick] = useState(0);
 
@@ -75,7 +75,7 @@ export function FrontlineTab() {
               <h2 className="text-sm font-medium text-muted-foreground">{t.calendar}</h2>
             </div>
             <FrontlineCalendar timezone={timezone} />
-            <p className="text-xs text-muted-foreground mt-4">{t.calendarHint}</p>
+            <p className="text-xs text-muted-foreground mt-4">{t.calendarHint.replace('{time}', activeTime)}</p>
           </CardContent>
         </Card>
       </div>
@@ -94,7 +94,7 @@ const locales = {
 };
 
 function FrontlineCalendar({ timezone }: { timezone: number }) {
-  const { t, language } = useSettingsContext();
+  const { t, language, activeTime } = useSettingsContext();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -163,9 +163,9 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
 
   // Get rotation info for a date (shared between HoverCard and Drawer)
   const getRotationInfo = (date: Date) => {
-    const maps = getFrontlineMapForDate(date, timezone);
+    const maps = getFrontlineMapForDate(date, timezone, activeTime);
     const splitHour = ((15 + timezone) % 24 + 24) % 24;
-    const isSplit = splitHour !== 0 && maps.mainMap !== maps.lateNightMap;
+    const isSplit = splitHour !== 0 && maps.beforeSplitMap !== maps.afterSplitMap;
 
     const splitHourStr = splitHour.toString().padStart(2, '0');
     const beforeSplitEndStr = (splitHour - 1).toString().padStart(2, '0');
@@ -204,7 +204,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
             return <div key={`empty-${idx}`} className="aspect-square" />;
           }
 
-          const maps = getFrontlineMapForDate(date, timezone);
+          const maps = getFrontlineMapForDate(date, timezone, activeTime);
           const isToday = date.getTime() === today.getTime();
           const isPast = date.getTime() < today.getTime();
 
@@ -221,7 +221,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                 onClick={() => handleDateClick(date)}
               >
                 <span className={cn("font-medium", isToday && "text-primary")}>{date.getDate()}</span>
-                <MapBadge mapId={maps.mainMap} className="text-[8px] px-1 py-0 mt-0.5" />
+                <MapBadge mapId={maps.snapshotMap} className="text-[8px] px-1 py-0 mt-0.5" />
               </div>
             );
           }
@@ -238,7 +238,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                   )}
                 >
                   <span className={cn("font-medium", isToday && "text-primary")}>{date.getDate()}</span>
-                  <MapBadge mapId={maps.mainMap} className="text-[8px] px-1 py-0 mt-0.5" />
+                  <MapBadge mapId={maps.snapshotMap} className="text-[8px] px-1 py-0 mt-0.5" />
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-auto min-w-[200px] p-3">
@@ -250,7 +250,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                       return (
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-muted-foreground">{formatTimeRange('00:00', '23:59')}</span>
-                          <MapBadge mapId={maps.mainMap} />
+                          <MapBadge mapId={maps.snapshotMap} />
                         </div>
                       );
                     }
@@ -259,11 +259,11 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                       <>
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-muted-foreground">{formatTimeRange('00:00', `${beforeSplitEndStr}:59`)}</span>
-                          <MapBadge mapId={maps.mainMap} />
+                          <MapBadge mapId={maps.beforeSplitMap} />
                         </div>
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-muted-foreground">{formatTimeRange(`${splitHourStr}:00`, '23:59')}</span>
-                          <MapBadge mapId={maps.lateNightMap} />
+                          <MapBadge mapId={maps.afterSplitMap} />
                         </div>
                       </>
                     );
@@ -308,7 +308,7 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                       <div className="text-xs text-muted-foreground text-center">
                         {formatTimeRange('00:00', '23:59')}
                       </div>
-                      <MapCard mapId={maps.mainMap} size="lg" showFullName className="w-full" />
+                      <MapCard mapId={maps.snapshotMap} size="lg" showFullName className="w-full" />
                     </div>
                   ) : (
                     <>
@@ -316,13 +316,13 @@ function FrontlineCalendar({ timezone }: { timezone: number }) {
                         <div className="text-xs text-muted-foreground text-center">
                           {formatTimeRange('00:00', `${beforeSplitEndStr}:59`)}
                         </div>
-                        <MapCard mapId={maps.mainMap} size="lg" showFullName className="w-full" />
+                        <MapCard mapId={maps.beforeSplitMap} size="lg" showFullName className="w-full" />
                       </div>
                       <div className="space-y-2">
                         <div className="text-xs text-muted-foreground text-center">
                           {formatTimeRange(`${splitHourStr}:00`, '23:59')}
                         </div>
-                        <MapCard mapId={maps.lateNightMap} size="lg" showFullName className="w-full" />
+                        <MapCard mapId={maps.afterSplitMap} size="lg" showFullName className="w-full" />
                       </div>
                     </>
                   )}

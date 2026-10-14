@@ -1,4 +1,4 @@
-import { Settings, Globe, Sun, Moon, Monitor } from 'lucide-react';
+import { Settings, Globe, Sun, Moon, Monitor, Clock, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,9 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useSettingsContext } from '@/contexts/useSettingsContext';
-import { TIMEZONE_OPTIONS, Theme } from '@/hooks/useSettings';
+import { TIMEZONE_OPTIONS, ACTIVE_TIME_OPTIONS, Theme } from '@/hooks/useSettings';
 import { Language } from '@/lib/i18n';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const languages: { value: Language; label: string }[] = [
   { value: 'zh', label: '中文' },
@@ -31,8 +37,58 @@ const themes: { value: Theme; icon: typeof Sun; label: string }[] = [
   { value: 'system', icon: Monitor, label: 'System' },
 ];
 
+function HelpTip({ content }: { content: string }) {
+  const isMobile = useIsMobile();
+
+  const handleMobileClick = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    alert(content);
+  };
+
+  if (isMobile) {
+    return (
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={handleMobileClick}
+        className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground active:text-foreground cursor-pointer focus:outline-none p-0.5 rounded transition-colors"
+        aria-label={content}
+      >
+        <HelpCircle className="h-3.5 w-3.5" />
+      </button>
+    );
+  }
+
+  return (
+    <Tooltip delayDuration={0}>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const isTouch = window.innerWidth < 768 || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+            if (isTouch) {
+              alert(content);
+            }
+          }}
+          className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none p-0.5 rounded transition-colors"
+          aria-label={content}
+        >
+          <HelpCircle className="h-3.5 w-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="z-[60] text-xs max-w-[220px]">
+        {content}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
 export function SettingsPanel() {
-  const { t, language, theme, timezone, updateSettings } = useSettingsContext();
+  const { t, language, theme, timezone, activeTime, updateSettings } = useSettingsContext();
 
   const currentTheme = themes.find(th => th.value === theme);
   const ThemeIcon = currentTheme?.icon || Moon;
@@ -113,6 +169,34 @@ export function SettingsPanel() {
               {TIMEZONE_OPTIONS.map((tz) => (
                 <SelectItem key={tz.value} value={String(tz.value)}>
                   {tz.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <DropdownMenuSeparator />
+
+        {/* Active Time */}
+        <div className="p-2">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Clock className="h-3 w-3 text-muted-foreground" />
+            <label className="text-xs text-muted-foreground">
+              {t.activeTime}
+            </label>
+            <HelpTip content={t.activeTimeHelp} />
+          </div>
+          <Select
+            value={activeTime}
+            onValueChange={(value) => updateSettings({ activeTime: value })}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-56">
+              {ACTIVE_TIME_OPTIONS.map((time) => (
+                <SelectItem key={time} value={time}>
+                  {time}
                 </SelectItem>
               ))}
             </SelectContent>
