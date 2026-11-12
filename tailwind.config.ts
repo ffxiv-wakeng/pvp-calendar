@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
   darkMode: ["class"],
@@ -14,6 +15,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"Google Sans Variable"', '"Google Sans"', ...fontFamily.sans],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

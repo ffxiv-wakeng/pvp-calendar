@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, Calculator, Swords, Share2, Loader2 } from 'lucide-react';
+import { Package, Calculator, Swords, Share2, Loader2, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import {
 import { useSettingsContext } from '@/contexts/useSettingsContext';
 import { MapCalculator } from '@/components/MapCalculator';
 import { AdjustmentLookup } from '@/components/AdjustmentLookup';
+import { MalmstoneCalculator } from '@/components/MalmstoneCalculator';
 import { WeeklyExport } from '@/components/WeeklyExport';
 import * as htmlToImage from 'html-to-image';
 import { toast } from 'sonner';
@@ -28,6 +29,7 @@ export function Toolbox() {
   // 弹窗状态
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [lookupOpen, setLookupOpen] = useState(false);
+  const [malmstoneOpen, setMalmstoneOpen] = useState(false);
 
   // 导出相关状态
   const [isExporting, setIsExporting] = useState(false);
@@ -70,7 +72,7 @@ export function Toolbox() {
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel>{t.toolbox}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
@@ -108,11 +110,23 @@ export function Toolbox() {
             <Swords className="h-4 w-4" />
             <span>{t.adjustmentLookup}</span>
           </DropdownMenuItem>
+
+          {/* 4. 星里路标计算器 */}
+          <DropdownMenuItem
+            className="cursor-pointer gap-2 py-2"
+            onSelect={() => setMalmstoneOpen(true)}
+          >
+            <Trophy className="h-4 w-4" />
+            <span>{t.malmstoneCalc}</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       {/* 补正速查弹窗 */}
       <AdjustmentLookup open={lookupOpen} onOpenChange={setLookupOpen} />
+
+      {/* 星里路标计算器弹窗 */}
+      <MalmstoneCalculator open={malmstoneOpen} onOpenChange={setMalmstoneOpen} />
 
       {/* 地图计算器弹窗 */}
       <MapCalculator
