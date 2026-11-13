@@ -115,22 +115,27 @@ export function PWAPrompt() {
   if (!showToast && !isOffline) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div
+      className="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)]"
+      role="status"
+      aria-live="polite"
+    >
       {showToast && (
-        <div className="bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 border border-gray-700/50">
+        <div className="bg-popover text-popover-foreground px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 motion-reduce:animate-none border border-border">
           {isUpdating ? (
-            <RefreshCw className="h-5 w-5 text-blue-400 animate-spin" />
+            <RefreshCw className="h-4 w-4 text-primary animate-spin motion-reduce:animate-none shrink-0" />
           ) : isOffline ? (
-            <WifiOff className="h-5 w-5 text-yellow-400" />
+            <WifiOff className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
           ) : (
-            <Wifi className="h-5 w-5 text-green-400" />
+            <Wifi className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           )}
           <span className="text-sm font-medium">{toastMessage}</span>
           {!isUpdating && (
             <button
+              type="button"
               onClick={close}
-              className="ml-2 hover:bg-gray-700 rounded p-1 transition-colors"
-              aria-label="Close"
+              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+              aria-label={t.close}
             >
               <X className="h-4 w-4" />
             </button>
@@ -138,8 +143,8 @@ export function PWAPrompt() {
         </div>
       )}
       {isOffline && !showToast && (
-        <div className="bg-yellow-900/90 text-yellow-200 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 border border-yellow-800/50">
-          <WifiOff className="h-5 w-5" />
+        <div className="bg-amber-50 text-amber-950 dark:bg-amber-950/90 dark:text-amber-100 px-3.5 py-2.5 rounded-xl shadow-lg flex items-center gap-2.5 border border-amber-300/80 dark:border-amber-800/70">
+          <WifiOff className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span className="text-sm font-medium">{t.offlineMode}</span>
         </div>
       )}

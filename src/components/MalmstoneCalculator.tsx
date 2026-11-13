@@ -8,14 +8,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { HelpTip } from '@/components/HelpTip';
 import { useSettingsContext } from '@/contexts/useSettingsContext';
-import { useIsMobile } from '@/hooks/use-mobile';
 import {
   TARGET_MALMSTONE_LEVEL,
   DAILY_FRONTLINE_BONUS_EXP,
@@ -34,51 +29,12 @@ import {
   CalendarCheck,
   Feather,
   Sparkles,
-  HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MalmstoneCalculatorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-// 帮助提示组件：移动端点击弹出系统提示，桌面端悬浮展示 Tooltip
-function HelpTip({ content }: { content: string }) {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          alert(content);
-        }}
-        className="inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground active:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring p-1 -m-1 rounded-md transition-colors shrink-0"
-        aria-label="提示说明"
-      >
-        <HelpCircle className="h-3.5 w-3.5" />
-      </button>
-    );
-  }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring p-1 -m-1 rounded-md transition-colors shrink-0"
-        >
-          <HelpCircle className="h-3.5 w-3.5" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent className="text-xs max-w-[260px]">
-        {content}
-      </TooltipContent>
-    </Tooltip>
-  );
 }
 
 export function MalmstoneCalculator({
@@ -258,7 +214,7 @@ export function MalmstoneCalculator({
             <div className="flex flex-col gap-3.5 p-4 border-b md:border-b-0 md:border-r border-foreground/10">
               {/* 1. 当前等级 */}
               <div className="space-y-1.5">
-                <Label className="text-[13px] font-medium text-muted-foreground">
+                <Label htmlFor="malmstone-level" className="text-[13px] font-medium text-muted-foreground">
                   {t.currentSeriesLevel}
                 </Label>
                 <div className="flex items-center h-10 rounded-md border border-input bg-background overflow-hidden transition-shadow focus-within:ring-2 focus-within:ring-ring/40">
@@ -274,6 +230,7 @@ export function MalmstoneCalculator({
                     <Minus className="h-3.5 w-3.5" />
                   </Button>
                   <Input
+                    id="malmstone-level"
                     type="number"
                     min={1}
                     max={TARGET_MALMSTONE_LEVEL}
@@ -301,11 +258,12 @@ export function MalmstoneCalculator({
 
               {/* 2. 当前等级经验 */}
               <div className="space-y-1.5">
-                <Label className="text-[13px] font-medium text-muted-foreground">
+                <Label htmlFor="malmstone-exp" className="text-[13px] font-medium text-muted-foreground">
                   {t.currentSeriesExp}
                 </Label>
                 <div className="relative flex items-center">
                   <Input
+                    id="malmstone-exp"
                     type="number"
                     min={0}
                     max={Math.max(0, progress.maxExpInLevel - 1)}
@@ -350,6 +308,7 @@ export function MalmstoneCalculator({
                 <div
                   className="flex h-2 gap-[2px]"
                   role="progressbar"
+                  aria-label={t.seriesProgress}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={Math.round(progress.progressPercent)}

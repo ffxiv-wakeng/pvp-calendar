@@ -17,6 +17,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Google Sans Variable"', '"Google Sans"', ...fontFamily.sans],
+        mono: ['"Google Sans Code Variable"', '"Google Sans Code"', ...fontFamily.mono],
       },
       colors: {
         border: "hsl(var(--border))",

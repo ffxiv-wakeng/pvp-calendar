@@ -4,7 +4,6 @@ export const translations = {
   zh: {
     // App
     appTitle: 'PvP Center',
-    appSubtitle: '在线追踪对战地图轮换情况，并提供多项实用工具',
     
     // Tabs
     frontline: '纷争前线',
@@ -19,7 +18,7 @@ export const translations = {
     nextRotation: '下次轮换',
     rotationSchedule: '轮换规则',
     calendar: '日历',
-    calculator: '计算器',
+    calculator: '战场计算',
     date: '日期',
     time: '时间',
     timeline: '时间轴',
@@ -36,15 +35,32 @@ export const translations = {
     minutes: '分钟',
     seconds: '秒',
     day: '日',
-    supportGameVer: '适配版本',
-    exportWeekly: '导出本周战场图',
+    appVersion: '应用版本',
+    gameVersionPrefix: '游戏版本',
+    supportGameVer: '游戏适配版本',
+    lastUpdate: '上次更新',
+    exportWeekly: '本周周历',
     weeklyRotation: '本周战场图',
-    exportSuccess: '图片已生成，可以长按保存或右键复制',
+    exportSuccess: '图片已生成，可以保存或长按/右键复制',
+    exportFailed: '图片生成失败，请稍后重试',
+    downloadImage: '保存图片',
+    close: '关闭',
+    today: '今天',
+    now: '当前时间',
+    previousMonth: '上个月',
+    nextMonth: '下个月',
+    selectDateTimeHint: '请选择日期和时间以查看对应地图',
+    noMatchingJobs: '没有找到匹配的职业',
+    clearFilters: '重置筛选',
+    helpTipLabel: '查看说明',
+    notFoundTitle: '页面未找到',
+    returnHome: '返回首页',
     appDescription: '在线追踪对战地图轮换情况。',
     checkUpdate: '检查更新',
     checkingUpdate: '正在检查更新...',
     alreadyLatest: '当前已是最新版本',
     updateFound: '发现新版本，正在载入最新内容...',
+    updateCheckFailed: '检查更新失败，请稍后重试',
     offlineReady: '应用已准备好离线使用',
     offlineMode: '离线模式',
 
@@ -71,7 +87,6 @@ export const translations = {
     comboPotency: '连招威力',
     battleHigh: '斗志昂扬',
     guard: '坚守阵地',
-    guardBonus: '增伤 +50%',
     attackerJobTip: '部分职业具有造成伤害的补正',
     comboPotencyTip: '连招威力应当填入计算自身buff/敌方debuff后的等效威力',
     guardTip: '「周边遗迹群(阵地战)」模式中，身处据点中心旗帜圈内的玩家会获得这一状态，造成的伤害提高50%',
@@ -88,8 +103,8 @@ export const translations = {
     killNotice: '连招威力与各项补正乘算，显示击杀对应职业所需的生命值百分比。',
 
     // Series Malmstones Calculator
-    malmstoneCalc: '星里路标计算器',
-    malmstoneTitle: '星里路标计算器',
+    malmstoneCalc: '星里路标',
+    malmstoneTitle: '星里路标',
     currentSeriesLevel: '当前等级',
     currentSeriesExp: '当前等级经验',
     remainingExpTo25: '距离 25 级还需经验',
@@ -115,7 +130,6 @@ export const translations = {
     calendarHint: '日期下标展示的是活跃时间（{time}）所处的地图快照。悬停或点击日期可查看当日轮换详情。',
     
     // Crystalline Conflict
-    ccRotation: '每90分钟轮换',
     nextDay: '次日',
     
     // Map names
@@ -154,7 +168,6 @@ export const translations = {
   },
   ja: {
     appTitle: 'PvP Center',
-    appSubtitle: '現在の対戦マップをリアルタイムで確認',
     
     frontline: 'フロントライン',
     frontlineShort: 'FL',
@@ -184,15 +197,32 @@ export const translations = {
     minutes: '分',
     seconds: '秒',
     day: '日',
+    appVersion: 'アプリバージョン',
+    gameVersionPrefix: 'パッチ',
     supportGameVer: '対応パッチ',
+    lastUpdate: '最終更新',
     exportWeekly: '今週のマップを書き出す',
     weeklyRotation: 'フロントライン・今週のマップ',
-    exportSuccess: '画像を生成しました。長押しして保存、または右クリックでコピーできます',
+    exportSuccess: '画像を生成しました。保存または長押し・右クリックでコピーできます',
+    exportFailed: '画像の生成に失敗しました',
+    downloadImage: '画像を保存',
+    close: '閉じる',
+    today: '今月',
+    now: '現在時刻',
+    previousMonth: '前の月',
+    nextMonth: '次の月',
+    selectDateTimeHint: '日付と時刻を選択してください',
+    noMatchingJobs: '該当するジョブが見つかりません',
+    clearFilters: '条件をリセット',
+    helpTipLabel: '説明を表示',
+    notFoundTitle: 'ページが見つかりません',
+    returnHome: 'ホームに戻る',
     appDescription: 'フロントラインのローテーションをリアルタイムで追跡。FFXIVコミュニティのために。',
     checkUpdate: '更新を確認',
     checkingUpdate: '更新を確認中...',
     alreadyLatest: 'すでに最新バージョンです',
     updateFound: '新しいバージョンが見つかりました。更新中...',
+    updateCheckFailed: '更新の確認に失敗しました',
     offlineReady: 'アプリはオフラインで使用できるようになりました',
     offlineMode: 'オフラインモード',
 
@@ -219,7 +249,6 @@ export const translations = {
     comboPotency: 'コンボ威力',
     battleHigh: '高揚レベル',
     guard: '堅守陣地',
-    guardBonus: '与ダメ+50%',
     attackerJobTip: '一部のジョブには与ダメージの補正があります',
     comboPotencyTip: '自身のバフ・敵のデバフを考慮した実質威力を入力してください',
     guardTip: '「外縁遺跡群 (制圧戦)」において、拠点フラッグ内にいるプレイヤーに付与され、与ダメージが50%上昇します',
@@ -261,7 +290,6 @@ export const translations = {
     
     calendarHint: '日付の下に表示されているのは活動時間（{time}）時点のマップです。ホバーまたはタップで当日の詳細を表示。',
     
-    ccRotation: '90分ごとにローテーション',
     nextDay: '翌日',
     
     maps: {
@@ -298,7 +326,6 @@ export const translations = {
   },
   en: {
     appTitle: 'PvP Center',
-    appSubtitle: 'Real-time PvP map tracker',
     
     frontline: 'Frontline',
     frontlineShort: 'FL',
@@ -328,15 +355,32 @@ export const translations = {
     minutes: 'm',
     seconds: 's',
     day: 'Day',
+    appVersion: 'App Version',
+    gameVersionPrefix: 'Patch ',
     supportGameVer: 'Supported Patch',
+    lastUpdate: 'Last Updated',
     exportWeekly: 'Export Weekly Maps',
     weeklyRotation: 'Frontline Weekly Rotation',
-    exportSuccess: 'Image generated! Long press to save or right-click to copy.',
+    exportSuccess: 'Image generated! Save below, long press, or right-click to copy.',
+    exportFailed: 'Failed to generate image. Please try again.',
+    downloadImage: 'Download',
+    close: 'Close',
+    today: 'Today',
+    now: 'Now',
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    selectDateTimeHint: 'Select a date and time to calculate maps',
+    noMatchingJobs: 'No matching jobs found',
+    clearFilters: 'Reset filters',
+    helpTipLabel: 'More info',
+    notFoundTitle: 'Page not found',
+    returnHome: 'Return to Home',
     appDescription: 'Tracking Frontline rotations in real-time. Designed for the FFXIV community.',
     checkUpdate: 'Check for Updates',
     checkingUpdate: 'Checking for updates...',
     alreadyLatest: 'Already up to date',
     updateFound: 'New version found, updating...',
+    updateCheckFailed: 'Failed to check for updates. Please try again.',
     offlineReady: 'App ready to work offline',
     offlineMode: 'Offline mode',
 
@@ -363,7 +407,6 @@ export const translations = {
     comboPotency: 'Combo Potency',
     battleHigh: 'Battle High',
     guard: 'Guard Area',
-    guardBonus: '+50% Damage',
     attackerJobTip: 'Some jobs have damage dealt adjustments.',
     comboPotencyTip: 'Enter effective potency factoring in personal buffs and target debuffs.',
     guardTip: 'In Secure, players standing on the fortress objective flag gain this status, increasing damage dealt by 50%.',
@@ -405,7 +448,6 @@ export const translations = {
     
     calendarHint: 'The map displayed under the date is the snapshot at your active time ({time}). Hover or tap the date to view rotation info.',
     
-    ccRotation: 'Rotates every 90 minutes',
     nextDay: 'Next day ',
     
     maps: {

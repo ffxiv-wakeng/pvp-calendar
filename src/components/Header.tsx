@@ -6,28 +6,23 @@ export function Header() {
   const { t } = useSettingsContext();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 overflow-hidden rounded-lg">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+    <header className="sticky top-0 md:static z-50 shrink-0 w-full border-b border-border/50 bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
+      <div className="container flex min-h-14 py-1.5 max-w-screen-2xl items-center justify-between gap-3 px-4">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center justify-center w-8 h-8 overflow-hidden rounded-lg shrink-0">
+            <img src="./logo.png" alt={t.appTitle} className="w-full h-full object-contain" />
           </div>
-          <div>
-            <div className="flex items-baseline gap-1.5">
-              <h1 className="text-sm sm:text-base font-bold leading-tight">
-                {t.appTitle}
-              </h1>
-              <span className="text-[10px] text-muted-foreground font-mono opacity-60">
-                {t.supportGameVer}: {import.meta.env.VITE_LAST_UPDATE}
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
-              {t.appSubtitle}
-            </p>
+          <div className="min-w-0 flex items-baseline gap-x-2 gap-y-0.5 flex-wrap">
+            <h1 className="text-base sm:text-lg font-bold leading-tight tracking-tight shrink-0">
+              {t.appTitle}
+            </h1>
+            <span className="text-[11px] sm:text-xs text-muted-foreground leading-tight tabular-nums whitespace-nowrap">
+              {import.meta.env.VITE_APP_VERSION} ({t.gameVersionPrefix}{import.meta.env.VITE_SUPPORT_GAME_VER})
+            </span>
           </div>
         </div>
-        
-        <div className="flex items-center gap-1 sm:gap-2">
+
+        <div className="flex items-center gap-1.5 shrink-0">
           <Toolbox />
           <SettingsPanel />
         </div>

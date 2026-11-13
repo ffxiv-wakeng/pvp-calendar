@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, Calculator, Swords, Share2, Loader2, Trophy } from 'lucide-react';
+import { Package, Calculator, Swords, Share2, Loader2, Trophy, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -36,15 +36,24 @@ export function Toolbox() {
   const [exportImageUrl, setExportImageUrl] = useState<string | null>(null);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
-  // 执行周报导出
+  // 执行周报导出（等待内部图片解码完成再截图）
   const handleExport = async () => {
     setIsExporting(true);
     try {
       const node = document.getElementById('toolbox-weekly-export-node');
       if (!node) throw new Error('Export node not found');
 
-      // 等待图片和样式渲染稳定
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const imgs = Array.from(node.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise<void>((resolve) => {
+            img.addEventListener('load', () => resolve(), { once: true });
+            img.addEventListener('error', () => resolve(), { once: true });
+          });
+        })
+      );
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 100)));
 
       const dataUrl = await htmlToImage.toPng(node, {
         quality: 0.95,
@@ -56,7 +65,7 @@ export function Toolbox() {
       toast.success(t.exportSuccess);
     } catch (error) {
       console.error('Export failed:', error);
-      toast.error('Export failed');
+      toast.error(t.exportFailed);
     } finally {
       setIsExporting(false);
     }
@@ -66,13 +75,18 @@ export function Toolbox() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 relative"
+            title={t.toolbox}
+          >
             <Package className="h-5 w-5" />
             <span className="sr-only">{t.toolbox}</span>
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuLabel>{t.toolbox}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
@@ -95,7 +109,7 @@ export function Toolbox() {
             }}
           >
             {isExporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" />
             ) : (
               <Share2 className="h-4 w-4" />
             )}
@@ -136,32 +150,40 @@ export function Toolbox() {
       />
 
       {/* 隐藏的周报导出节点 */}
-      <div className="fixed -left-[9999px] top-0 pointer-events-none opacity-0">
+      <div className="fixed -left-[9999px] top-0 pointer-events-none opacity-0" aria-hidden="true">
         <WeeklyExport id="toolbox-weekly-export-node" />
       </div>
 
       {/* 导出结果弹窗 */}
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
-        <DialogContent className="sm:max-w-md md:max-w-lg p-0 overflow-hidden bg-background border-border">
-          <DialogHeader className="p-4 sm:p-6 pb-4 border-b border-border bg-muted/30">
+        <DialogContent className="max-w-[96%] sm:max-w-md md:max-w-lg p-0 gap-0 overflow-hidden rounded-xl bg-background border-border">
+          <DialogHeader className="bg-muted/30">
             <DialogTitle>{t.exportWeekly}</DialogTitle>
           </DialogHeader>
-          <div className="relative aspect-[3/5] max-h-[70vh] w-full overflow-hidden flex items-center justify-center p-4 sm:p-6 bg-muted/10">
+          <div className="relative aspect-[3/5] max-h-[68vh] w-full overflow-hidden flex items-center justify-center p-4 sm:p-6 bg-muted/10">
             {exportImageUrl && (
               <img
                 src={exportImageUrl}
-                alt="Exported weekly map"
+                alt={t.weeklyRotation}
                 className="max-w-full max-h-full rounded-lg shadow-xl border border-border"
               />
             )}
           </div>
-          <div className="p-4 border-t border-border flex justify-end">
+          <div className="px-5 py-3.5 border-t border-border/50 flex items-center justify-end gap-2">
+            {exportImageUrl && (
+              <Button asChild size="sm">
+                <a href={exportImageUrl} download="ffxiv-pvp-weekly.png">
+                  <Download className="h-4 w-4" />
+                  {t.downloadImage}
+                </a>
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsExportDialogOpen(false)}
             >
-              关闭
+              {t.close}
             </Button>
           </div>
         </DialogContent>

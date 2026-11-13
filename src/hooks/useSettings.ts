@@ -66,27 +66,40 @@ export function useSettings() {
     };
   });
 
-  // Apply theme to document
+  // 同步主题类名与浏览器 theme-color 元信息
   useEffect(() => {
-    const effectiveTheme = settings.theme === 'system' ? getSystemTheme() : settings.theme;
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(effectiveTheme);
-  }, [settings.theme]);
-
-  // Listen for system theme changes
-  useEffect(() => {
-    if (settings.theme !== 'system') return;
-    
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => {
-      const effectiveTheme = getSystemTheme();
+    const applyTheme = (effectiveTheme: 'light' | 'dark') => {
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(effectiveTheme);
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', effectiveTheme === 'dark' ? '#0a0a0a' : '#f9f7f4');
+      }
     };
-    
+
+    const effectiveTheme = settings.theme === 'system' ? getSystemTheme() : settings.theme;
+    applyTheme(effectiveTheme);
+
+    if (settings.theme !== 'system') return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => {
+      applyTheme(getSystemTheme());
+    };
+
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, [settings.theme]);
+
+  // 同步文档语言属性，确保无障碍读屏与 CJK 字形选择准确
+  useEffect(() => {
+    const langMap: Record<Language, string> = {
+      zh: 'zh-CN',
+      ja: 'ja',
+      en: 'en',
+    };
+    document.documentElement.lang = langMap[settings.language] || 'zh-CN';
+  }, [settings.language]);
 
   // Persist settings
   useEffect(() => {

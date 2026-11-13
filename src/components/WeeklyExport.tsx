@@ -68,7 +68,7 @@ export function WeeklyExport({ id, className }: WeeklyExportProps) {
       <div className="relative z-10 flex flex-col gap-1 border-b border-border pb-4">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md overflow-hidden">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+            <img src="./logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
@@ -86,22 +86,33 @@ export function WeeklyExport({ id, className }: WeeklyExportProps) {
         {weekData.map((item, idx) => (
           <div
             key={idx}
-            className="flex items-stretch gap-3 p-3 transition-colors hover:bg-muted/30"
+            className="flex items-stretch gap-3 p-3"
           >
             {/* Left: Date info */}
-            <div className="flex flex-col justify-center min-w-[70px] border-r border-border/50 pr-3">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+            <div className="flex flex-col justify-center w-24 shrink-0 border-r border-border/50 pr-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary whitespace-nowrap">
                 {item.dayName}
               </span>
-              <span className="text-base font-bold tabular-nums leading-none mt-0.5">
+              <span className="text-base font-bold tabular-nums leading-none mt-0.5 whitespace-nowrap">
                 {item.dateStr}
               </span>
             </div>
 
             {/* Middle: Map Image */}
-            <div className="flex-1 rounded-lg overflow-hidden h-12 shadow-sm relative border border-border/30">
-              <MapCard size="sm" mapId={item.mapId} className="w-full h-full sm:h-full object-cover" showName={false} />
-              <div className="absolute top-1/2 left-2 text-white font-semibold text-sm drop-shadow-lg line-clamp-2">{t.maps[item.mapId]}</div>
+            <div className="flex-1 min-w-0 rounded-lg overflow-hidden h-14 shadow-sm relative border border-border/30">
+              <MapCard
+                size="sm"
+                mapId={item.mapId}
+                eager
+                className="w-full h-full max-w-none border-0 rounded-none"
+                showName={false}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
+              <div className="absolute inset-y-0 left-3 right-3 flex items-center">
+                <span className="text-white font-semibold text-sm drop-shadow-md line-clamp-2 leading-snug">
+                  {t.maps[item.mapId]}
+                </span>
+              </div>
             </div>
           </div>
         ))}

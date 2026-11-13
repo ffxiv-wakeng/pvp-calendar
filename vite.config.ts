@@ -78,7 +78,9 @@ export default defineConfig({
     }),
   ],
   define: {
-    'import.meta.env.VITE_LAST_UPDATE': JSON.stringify(PackageJson.supportGameVer),
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(PackageJson.version),
+    'import.meta.env.VITE_SUPPORT_GAME_VER': JSON.stringify(PackageJson.supportGameVer),
+    'import.meta.env.VITE_LAST_UPDATE': JSON.stringify(PackageJson.lastUpdate),
   },
   resolve: {
     alias: {

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Calculator } from 'lucide-react';
 import { useSettingsContext } from '@/contexts/useSettingsContext';
 import { getCurrentFrontlineMap, getCurrentCCMap } from '@/lib/rotation';
@@ -69,9 +70,18 @@ export function MapCalculator({ open, onOpenChange, trigger }: MapCalculatorProp
   const handleDateTimeChange = (val: string) => {
     if (!val) return;
     const d = new Date(val);
+    if (isNaN(d.getTime())) return;
     setDate(d);
     const h = String(d.getHours()).padStart(2, '0');
     const m = String(d.getMinutes()).padStart(2, '0');
+    setTime(`${h}:${m}`);
+  };
+
+  const resetToNow = () => {
+    const now = new Date();
+    setDate(now);
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
     setTime(`${h}:${m}`);
   };
 
@@ -87,89 +97,98 @@ export function MapCalculator({ open, onOpenChange, trigger }: MapCalculatorProp
           </Button>
         </DialogTrigger>
       ) : null}
-      <DialogContent className="max-w-[98%] sm:max-w-[425px] md:max-w-[800px] max-h-[90%] overflow-y-auto w-full p-0 gap-0 rounded">
+      <DialogContent className="max-w-[96%] sm:max-w-[440px] md:max-w-[800px] max-h-[90vh] overflow-y-auto w-full p-0 gap-0 rounded-xl">
         <DialogHeader>
           <DialogTitle>{t.calculator}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col md:flex-row h-full">
-          {/* Mobile Input: Native DateTime Picker */}
-          <div className="md:hidden p-6 border-b border-border/40 flex flex-col overflow-hidden">
-            <SectionHeader title={`${t.date} & ${t.time}`} />
+          {/* 移动端输入：原生日期时间选择器 */}
+          <div className="md:hidden p-5 border-b border-border/40 flex flex-col gap-3 overflow-hidden">
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="mobile-datetime" className="text-sm font-medium text-muted-foreground">
+                {t.date} & {t.time}
+              </label>
+              <Button type="button" variant="outline" size="sm" className="h-7 text-xs px-2.5" onClick={resetToNow}>
+                {t.now}
+              </Button>
+            </div>
             <div className="w-full min-w-0">
               <Input
                 id="mobile-datetime"
                 type="datetime-local"
                 value={date ? getDateTimeString(date, time) : ''}
                 onChange={(e) => handleDateTimeChange(e.target.value)}
-                className="w-full max-w-full min-w-0 bg-background"
+                className="w-full max-w-full min-w-0 bg-background text-base"
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
             </div>
           </div>
 
-          {/* Desktop Input: Calendar & Time */}
-          <div className="hidden md:flex flex-col p-6 pt-4 md:pt-6 items-center md:border-r border-border/40 bg-card/50">
+          {/* 桌面端输入：日历与时间选择器 */}
+          <div className="hidden md:flex flex-col p-6 pt-4 md:pt-5 items-center md:border-r border-border/40 bg-card/50">
             <div className="w-full">
-              <SectionHeader title={t.date} />
-              <div className="flex flex-col gap-6 items-center mt-2">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-medium text-muted-foreground">{t.date}</h2>
+                <Button type="button" variant="outline" size="sm" className="h-7 text-xs px-2.5" onClick={resetToNow}>
+                  {t.now}
+                </Button>
+              </div>
+              <div className="flex flex-col gap-5 items-center">
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={(selected) => selected && setDate(selected)}
                   initialFocus
                   fixedWeeks
+                  weekStartsOn={language === 'zh' ? 1 : 0}
                   locale={locales[language as keyof typeof locales]}
                   className="rounded-md border bg-background shadow-sm"
                 />
-                <div className="flex items-center gap-4 w-full px-2">
-                  <label htmlFor="time" className="text-sm font-medium w-12 text-muted-foreground">
+                <div className="flex items-center gap-4 w-full px-1">
+                  <Label htmlFor="map-calc-time" className="text-sm font-medium w-12 text-muted-foreground shrink-0">
                     {t.time}
-                  </label>
+                  </Label>
                   <Input
-                    id="time"
+                    id="map-calc-time"
                     type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="flex-1 bg-background flex justify-between"
+                    className="flex-1 bg-background flex justify-center"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Results */}
-          <div className="flex-1 bg-card/50 p-6 pt-4 md:pt-6 min-w-0">
+          {/* 右栏：计算结果 */}
+          <div className="flex-1 bg-card/50 p-5 sm:p-6 pt-4 md:pt-5 min-w-0">
             <SectionHeader title={t.map} />
             {calculatedMaps ? (
-              <div className="flex flex-col gap-4 mt-2">
-                <div className="space-y-3">
+              <div className="flex flex-col gap-5 mt-2">
+                <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{t.frontline}</span>
                       <MapBadge mapId={calculatedMaps.fl} />
                     </div>
                   </div>
-                  <div className="rounded-xl overflow-hidden shadow-sm border border-border/50">
-                    <MapCard mapId={calculatedMaps.fl} showFullName className="w-full" />
-                  </div>
+                  <MapCard mapId={calculatedMaps.fl} showFullName className="w-full max-w-none" />
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{t.crystallineConflict}</span>
                       <MapBadge mapId={calculatedMaps.cc} />
                     </div>
                   </div>
-                  <div className="rounded-xl overflow-hidden shadow-sm border border-border/50">
-                    <MapCard mapId={calculatedMaps.cc} showFullName className="w-full" />
-                  </div>
+                  <MapCard mapId={calculatedMaps.cc} showFullName className="w-full max-w-none" />
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground p-8 text-center border-2 border-dashed border-border/50 rounded-lg m-4 mt-2">
+              <div className="flex flex-col items-center justify-center h-48 gap-2 text-muted-foreground p-6 text-center border-2 border-dashed border-border/50 rounded-lg mt-2">
                 <Calculator className="h-8 w-8 opacity-50" />
-                <span className="text-sm">Select a date and time to calculate maps</span>
+                <span className="text-sm">{t.selectDateTimeHint}</span>
               </div>
             )}
           </div>

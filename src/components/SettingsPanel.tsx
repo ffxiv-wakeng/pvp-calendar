@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Settings, Globe, Sun, Moon, Monitor, Clock, HelpCircle, RefreshCw } from 'lucide-react';
+import { Settings, Globe, Sun, Moon, Monitor, Clock, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { checkForAppUpdates } from '@/lib/pwa';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -18,15 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { HelpTip } from '@/components/HelpTip';
 import { useSettingsContext } from '@/contexts/useSettingsContext';
 import { TIMEZONE_OPTIONS, ACTIVE_TIME_OPTIONS, Theme } from '@/hooks/useSettings';
 import { Language } from '@/lib/i18n';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const languages: { value: Language; label: string }[] = [
   { value: 'zh', label: '中文' },
@@ -34,61 +28,11 @@ const languages: { value: Language; label: string }[] = [
   { value: 'en', label: 'English' },
 ];
 
-const themes: { value: Theme; icon: typeof Sun; label: string }[] = [
-  { value: 'light', icon: Sun, label: 'Light' },
-  { value: 'dark', icon: Moon, label: 'Dark' },
-  { value: 'system', icon: Monitor, label: 'System' },
+const themes: { value: Theme; icon: typeof Sun; labelKey: 'light' | 'dark' | 'system' }[] = [
+  { value: 'light', icon: Sun, labelKey: 'light' },
+  { value: 'dark', icon: Moon, labelKey: 'dark' },
+  { value: 'system', icon: Monitor, labelKey: 'system' },
 ];
-
-function HelpTip({ content }: { content: string }) {
-  const isMobile = useIsMobile();
-
-  const handleMobileClick = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    alert(content);
-  };
-
-  if (isMobile) {
-    return (
-      <button
-        type="button"
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={handleMobileClick}
-        className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground active:text-foreground cursor-pointer focus:outline-none p-0.5 rounded transition-colors"
-        aria-label={content}
-      >
-        <HelpCircle className="h-3.5 w-3.5" />
-      </button>
-    );
-  }
-
-  return (
-    <Tooltip delayDuration={0}>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const isTouch = window.innerWidth < 768 || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-            if (isTouch) {
-              alert(content);
-            }
-          }}
-          className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none p-0.5 rounded transition-colors"
-          aria-label={content}
-        >
-          <HelpCircle className="h-3.5 w-3.5" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="top" className="z-[60] text-xs max-w-[220px]">
-        {content}
-      </TooltipContent>
-    </Tooltip>
-  );
-}
 
 export function SettingsPanel() {
   const { t, language, theme, timezone, activeTime, updateSettings } = useSettingsContext();
@@ -106,42 +50,46 @@ export function SettingsPanel() {
       } else if (res === 'unsupported') {
         toast.info(t.alreadyLatest);
       } else {
-        toast.error('检查更新失败，请稍后重试');
+        toast.error(t.updateCheckFailed);
       }
     } catch {
-      toast.error('检查更新失败，请稍后重试');
+      toast.error(t.updateCheckFailed);
     } finally {
       setIsCheckingUpdate(false);
     }
   };
 
-  const currentTheme = themes.find(th => th.value === theme);
-  const ThemeIcon = currentTheme?.icon || Moon;
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 relative"
+          title={t.settings}
+        >
           <Settings className="h-5 w-5" />
           <span className="sr-only">{t.settings}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-72 max-h-[calc(100dvh-5rem)] overflow-y-auto">
         <DropdownMenuLabel>{t.settings}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
-        {/* Language */}
+
+        {/* 语言设置 */}
         <div className="p-2">
-          <label className="text-xs text-muted-foreground mb-1.5 block">
+          <span className="text-xs text-muted-foreground mb-1.5 block">
             {t.language}
-          </label>
-          <div className="flex gap-1">
+          </span>
+          <div className="flex gap-1" role="group" aria-label={t.language}>
             {languages.map((lang) => (
               <Button
                 key={lang.value}
+                type="button"
                 variant={language === lang.value ? 'default' : 'outline'}
                 size="sm"
                 className="flex-1"
+                aria-pressed={language === lang.value}
                 onClick={() => updateSettings({ language: lang.value })}
               >
                 {lang.label}
@@ -152,20 +100,25 @@ export function SettingsPanel() {
 
         <DropdownMenuSeparator />
 
-        {/* Theme */}
+        {/* 主题设置 */}
         <div className="p-2">
-          <label className="text-xs text-muted-foreground mb-1.5 block">
+          <span className="text-xs text-muted-foreground mb-1.5 block">
             {t.theme}
-          </label>
-          <div className="flex gap-1">
+          </span>
+          <div className="flex gap-1" role="group" aria-label={t.theme}>
             {themes.map((th) => {
               const Icon = th.icon;
+              const label = t[th.labelKey];
               return (
                 <Button
                   key={th.value}
+                  type="button"
                   variant={theme === th.value ? 'default' : 'outline'}
                   size="sm"
                   className="flex-1"
+                  aria-label={label}
+                  aria-pressed={theme === th.value}
+                  title={label}
                   onClick={() => updateSettings({ theme: th.value })}
                 >
                   <Icon className="h-4 w-4" />
@@ -177,17 +130,20 @@ export function SettingsPanel() {
 
         <DropdownMenuSeparator />
 
-        {/* Timezone */}
+        {/* 时区设置 */}
         <div className="p-2">
-          <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
-            <Globe className="h-3 w-3" />
+          <label
+            htmlFor="settings-timezone"
+            className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1"
+          >
+            <Globe className="h-3.5 w-3.5" />
             {t.timezone}
           </label>
           <Select
             value={String(timezone)}
             onValueChange={(value) => updateSettings({ timezone: parseFloat(value) })}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="settings-timezone" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -202,11 +158,11 @@ export function SettingsPanel() {
 
         <DropdownMenuSeparator />
 
-        {/* Active Time */}
+        {/* 活跃时间快照设置 */}
         <div className="p-2">
           <div className="flex items-center gap-1.5 mb-1.5">
-            <Clock className="h-3 w-3 text-muted-foreground" />
-            <label className="text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            <label htmlFor="settings-active-time" className="text-xs text-muted-foreground">
               {t.activeTime}
             </label>
             <HelpTip content={t.activeTimeHelp} />
@@ -215,7 +171,7 @@ export function SettingsPanel() {
             value={activeTime}
             onValueChange={(value) => updateSettings({ activeTime: value })}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="settings-active-time" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="max-h-56">
@@ -230,19 +186,36 @@ export function SettingsPanel() {
 
         <DropdownMenuSeparator />
 
-        {/* Update Check */}
-        <div className="p-2 flex items-center justify-between text-xs text-muted-foreground">
-          <span className="font-mono text-[11px] opacity-75">
-            {t.supportGameVer}: {import.meta.env.VITE_LAST_UPDATE}
-          </span>
+        {/* 版本信息与检查更新 */}
+        <div className="p-2 space-y-2.5">
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">{t.appVersion}</span>
+              <span className="font-medium tabular-nums text-foreground">
+                {import.meta.env.VITE_APP_VERSION}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">{t.supportGameVer}</span>
+              <span className="font-medium tabular-nums text-foreground">
+                {import.meta.env.VITE_SUPPORT_GAME_VER}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">{t.lastUpdate}</span>
+              <span className="font-medium tabular-nums text-foreground">
+                {import.meta.env.VITE_LAST_UPDATE}
+              </span>
+            </div>
+          </div>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-7 px-2 text-xs hover:bg-accent"
+            className="w-full h-8 text-xs"
             onClick={handleCheckUpdate}
             disabled={isCheckingUpdate}
           >
-            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isCheckingUpdate ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isCheckingUpdate ? 'animate-spin motion-reduce:animate-none' : ''}`} />
             {isCheckingUpdate ? t.checkingUpdate : t.checkUpdate}
           </Button>
         </div>
